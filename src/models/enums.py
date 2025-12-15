@@ -54,6 +54,7 @@ class SubscriptionTier(StrEnum):
     PROFESSIONAL = "professional"
     ENTERPRISE = "enterprise"
 
+
 class ElectionStatus(StrEnum):
     DRAFT = "draft"
     ONGOING = "ongoing"
@@ -62,14 +63,13 @@ class ElectionStatus(StrEnum):
     CANCELED = "canceled"
 
 
-
-# class ProjectStatus(StrEnum):
-#     """..."""
-#     DRAFT = "draft"  # same as "not_started" for wards & Polling units
-#     ONGOING = "ongoing"
-#     COMPLETED = "completed"
-#     SUSPENDED = "suspended"
-#     CANCELED = "canceled"
-
-
-
+class ElectionType(StrEnum):
+    PRESIDENTIAL = "presidential"
+    GOVERNORSHIP = "`governoship"
+    SENATORIAL = "senatorial"
+    FEDERAL_HOUSE_OF_ASSEMBLY = "federal_house_of_assembly"
+    STATE_HOUSE_OF_ASSEMBLY = "state_house_of_assembly"
+    LOCAL_GOVERNMENT = "local_government"
+    WARD = "ward"
+    COUNCILLORSHIP = "councillorship"
+    OTHERS = "others"

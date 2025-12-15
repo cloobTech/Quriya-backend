@@ -1,6 +1,6 @@
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.models.election_project import ElectionProject
-from src.schemas.election import CreateElectionProject
+from src.schemas.election_project import CreateElectionProject
 from src.core.exceptions import EntityNotFoundError
 
 

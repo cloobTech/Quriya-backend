@@ -8,6 +8,7 @@ from src.models.enums import UserRole, UserStatus
 
 if TYPE_CHECKING:
     from src.models.organization import Organization
+    from src.models.election_project import ElectionProject
 
 
 class User(BaseModel, Base):
@@ -31,3 +32,5 @@ class User(BaseModel, Base):
     # Relationships
     organization: Mapped['Organization'] = relationship(
         back_populates="users")
+    election_project: Mapped['ElectionProject'] = relationship(
+        back_populates="created_by")

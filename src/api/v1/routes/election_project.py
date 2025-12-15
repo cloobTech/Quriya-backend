@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from src.api.v1.dependencies import get_uow, require_role
-from src.schemas.election import CreateElectionProject
+from src.schemas.election_project import CreateElectionProject
 from src.models.user import User
 from src.services.election_project import ElectionProjectService
 from src.unit_of_work.unit_of_work import UnitOfWork

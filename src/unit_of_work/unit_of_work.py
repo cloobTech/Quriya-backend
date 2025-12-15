@@ -7,6 +7,12 @@ from src.repositories.election_project import ElectionProjectRepository
 from src.repositories.election_project_member import ElectionProjectMemberRepository
 from src.repositories.ward import WardRepository
 from src.repositories.polling_unit import PollingRepository
+from src.repositories.state import StateRepository
+from src.repositories.local_government_area import LgaRepository
+from src.repositories.project_pu_coverage import PuCoverageRepository
+from src.repositories.project_ward_coverage import WardCoverageRepository
+from src.repositories.project_state_coverage import StateCoverageRepository
+from src.repositories.project_lga_coverage import LgaCoverageRepository
 from src.events.bus import event_bus
 from src.events.base import DomainEvent
 from src.core.exceptions import UniqueViolationError
@@ -28,6 +34,12 @@ class UnitOfWork:
             session)
         self.polling_unit_repo = PollingRepository(
             session)
+        self.lga_repo = LgaRepository(session)
+        self.state_repo = StateRepository(session)
+        self.pu_coverage_repo = PuCoverageRepository(session)
+        self.ward_coverage_repo = WardCoverageRepository(session)
+        self.lga_coverage_repo = LgaCoverageRepository(session)
+        self.state_coverage_repo = StateCoverageRepository(session)
 
     def collect_event(self, event: DomainEvent) -> None:
         self._pending_events.append(event)
