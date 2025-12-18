@@ -17,7 +17,7 @@ class ProjectPuCoverage(BaseModel, Base):
         ForeignKey("election_projects.id"), primary_key=True)
     pu_id: Mapped[str] = mapped_column(
         ForeignKey("polling_units.id"), primary_key=True)
-    status: Mapped[ElectionStatus] = mapped_column(Enum(ElectionStatus), nullable=False)
+    status: Mapped[ElectionStatus] = mapped_column(Enum(ElectionStatus),default=ElectionStatus.DRAFT, nullable=False)
     
     
 

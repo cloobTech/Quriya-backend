@@ -4,7 +4,7 @@ from src.core.exceptions import EntityNotFoundError
 async def fetch_or_exists(
     repo,
     *,
-    id: int | None = None,
+    id: str | None = None,
     filter_by: dict | None = None,
     message: str | None = None,
     details: dict | None = None,

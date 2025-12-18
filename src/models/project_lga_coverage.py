@@ -17,6 +17,6 @@ class ProjectLgaCoverage(BaseModel, Base):
     lga_id: Mapped[str] = mapped_column(ForeignKey(
         "local_government_areas.id"), primary_key=True)
     status: Mapped[ElectionStatus] = mapped_column(
-        Enum(ElectionStatus), nullable=False)
+        Enum(ElectionStatus), default=ElectionStatus.DRAFT, nullable=False)
 
     project: Mapped["ElectionProject"] = relationship(back_populates="lgas")

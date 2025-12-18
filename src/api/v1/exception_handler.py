@@ -65,6 +65,17 @@ def unique_violation_handler(request: Request, exc: Exception):
 
         ).model_dump(),
     )
+def invalid_coverage_selection(request: Request, exc: Exception):
+
+    return JSONResponse(
+        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        content=ErrorResponse(
+            error="invalid_coverage",
+            message=getattr(exc, "message", ""),
+            details=getattr(exc, "details", None),
+
+        ).model_dump(),
+    )
 
 
 def token_expired_handler(request: Request, exc: Exception):

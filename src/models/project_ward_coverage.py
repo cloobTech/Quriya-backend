@@ -17,7 +17,7 @@ class ProjectWardCoverage(BaseModel, Base):
         ForeignKey("election_projects.id"), primary_key=True)
     ward_id: Mapped[str] = mapped_column(
         ForeignKey("wards.id"), primary_key=True)
-    status: Mapped[ElectionStatus] = mapped_column(Enum(ElectionStatus))
+    status: Mapped[ElectionStatus] = mapped_column(Enum(ElectionStatus), default=ElectionStatus.DRAFT)
     
 
     project: Mapped["ElectionProject"] = relationship(back_populates="wards")

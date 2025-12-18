@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from src.services.organization import OrganizationService
 from src.services.user import UserService
 from src.schemas.user import CreateUser
@@ -36,7 +35,7 @@ class AuthService:
             raise InvalidCredentialsError("Invalid Credentials")
         # check user status
         # check email verification
-        user.last_login = datetime.now(timezone.utc)
+        await self.user_service.update_last_login(user.id)
         token = retrive_token(user)
 
         return TokenResponse(

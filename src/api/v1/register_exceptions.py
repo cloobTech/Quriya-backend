@@ -11,6 +11,7 @@ from src.core.exceptions import (
     TokenExpiredError,
     DuplicateEntryError,
     InvalidTokenError,
+    InvalidCoverageSelectionError
 )
 
 from src.api.v1.exception_handler import (
@@ -25,6 +26,7 @@ from src.api.v1.exception_handler import (
     http_exception_handler,
     internal_server_error_handler,
     database_connection_error_handler,
+    invalid_coverage_selection
 )
 
 
@@ -37,6 +39,8 @@ def register_exception_handlers(app: FastAPI):
     app.add_exception_handler(InvalidCredentialsError,
                               invalid_credentials_handler)
     app.add_exception_handler(PermissionDeniedError, permission_denied_handler)
+    app.add_exception_handler(PermissionDeniedError,
+                              invalid_coverage_selection)
 
     # Token-related
     app.add_exception_handler(TokenExpiredError, token_expired_handler)

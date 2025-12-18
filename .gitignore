@@ -12,3 +12,4 @@ __pycache__/
 *.pyc
 
 ./test.db
+./try_out.py

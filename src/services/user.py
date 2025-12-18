@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from src.schemas.user import CreateUser
 from src.models.user import User
 from src.models.organization import Organization
@@ -71,3 +72,11 @@ class UserService:
                 raise EntityNotFoundError(
                     f"User with this ({email}) does not exist.")
             return user
+
+    async def update_last_login(self, user_id: str) -> None:
+        async with self.uow_factory as uow:
+            user = await uow.users_repo.get_by_id(user_id)
+            if not user:
+                return
+
+            user.last_login = datetime.now(timezone.utc)

@@ -65,7 +65,7 @@ class ElectionStatus(StrEnum):
 
 class ElectionType(StrEnum):
     PRESIDENTIAL = "presidential"
-    GOVERNORSHIP = "`governoship"
+    GUBERNATORIAL = "gubernatorial"
     SENATORIAL = "senatorial"
     FEDERAL_HOUSE_OF_ASSEMBLY = "federal_house_of_assembly"
     STATE_HOUSE_OF_ASSEMBLY = "state_house_of_assembly"

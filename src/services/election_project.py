@@ -10,15 +10,16 @@ class ElectionProjectService:
     def __init__(self, uow_factory: UnitOfWork) -> None:
         self.uow_factory = uow_factory
 
-    async def create_election_monitoring_project(self, data: CreateElectionProject) -> ElectionProject:
+    async def create_election_monitoring_project(self, data: CreateElectionProject, organization_id: str, createdby_user_id: str) -> ElectionProject:
         """create a new project"""
 
         async with self.uow_factory as uow:
-            org = await uow.organizations_repo.get_by_id(data.organization_id)
+            org = await uow.organizations_repo.get_by_id(organization_id)
             if not org:
                 raise EntityNotFoundError(
-                    message=f"cannot find organization with this id - {data.organization_id}", details={"hello": "hi"})
+                    message=f"cannot find organization with this id - {organization_id}", details={"hello": "hi"})
             # we can later choose to make sure that only
-            election_project = await uow.election_project_repo.create(ElectionProject(**data.model_dump()))
+            election_project = await uow.election_project_repo.create(ElectionProject(**data.model_dump(), organization_id=organization_id,
+                                                                                      createdby_user_id=createdby_user_id,))
             # we can send an email or notification here
             return election_project

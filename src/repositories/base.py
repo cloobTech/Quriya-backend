@@ -1,7 +1,6 @@
 from typing import Generic, Sequence, Type, TypeVar, Optional
-from sqlalchemy import func, select, update
+from sqlalchemy import func, select, update, exists
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import NoResultFound, IntegrityError, SQLAlchemyError
 from src.models.base import Base
 
 
@@ -17,9 +16,14 @@ class BaseRepository(Generic[ModelType]):
 
     async def create(self, obj: ModelType) -> ModelType:
         """Create a new record."""
-        
+
         self.session.add(obj)
         return obj
+
+    async def bulk_create(self, data: list[ModelType]):
+        """Create multiple data db record"""
+
+        self.session.add_all(data)
 
     async def get_by_id(self, id: str) -> Optional[ModelType]:
         """Retrieve a record by its ID."""
@@ -28,7 +32,6 @@ class BaseRepository(Generic[ModelType]):
         #     raise NoResultFound(
         #         f"{self.model.__name__} with ID {id} not found")
         return result
-
 
     async def get_all(self) -> Sequence[ModelType]:
         """Fetch all records."""
@@ -79,8 +82,26 @@ class BaseRepository(Generic[ModelType]):
         await self.session.execute(stmt)
         return True
 
-    async def exists(self, **kwargs) -> bool:
-        stmt = select(func.count()).select_from(self.model).filter_by(**kwargs)
+    async def exists(self, **kwargs) -> bool | None:
+        stmt = select(
+            exists().where(
+                *[getattr(self.model, k) == v for k, v in kwargs.items()]
+            )
+        )
         result = await self.session.execute(stmt)
-        scalar_result = result.scalar()
-        return scalar_result is not None and scalar_result > 0
+        return result.scalar()
+
+    async def all_ids_exist(self, ids: list[str]) -> bool:
+        if not ids:
+            return True  # or False, depending on your rule
+
+        stmt = (
+            select(func.count())
+            .select_from(self.model)
+            .where(self.model.id.in_(ids))  # type: ignore[attr-defined]
+        )
+
+        result = await self.session.execute(stmt)
+        count = result.scalar_one()
+
+        return count == len(set(ids))
