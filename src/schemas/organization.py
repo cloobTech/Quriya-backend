@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 class CreateOrganization(BaseModel):
+    slug: str | None = Field(None, description="The slug of the organization")
     name: str = Field(..., description="The name of the organization")
     contact_email: EmailStr = Field(...,
                                     description="Contact email for the organization")

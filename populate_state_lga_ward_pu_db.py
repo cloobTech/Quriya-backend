@@ -38,7 +38,7 @@ async def import_polling_units(csv_path: str):
                 lng = row.get("location.longitude")
 
                 # ---------- STATE ----------
-                if state_name not in state_cache:
+                if state_name and state_name not in state_cache:
                     result = await session.execute(
                         select(State).where(State.name == state_name)
                     )
@@ -52,37 +52,40 @@ async def import_polling_units(csv_path: str):
                         session.add(state)
                         await session.flush()
 
-                    state_cache[state_name] = state.id
+                    if state_name:  # Ensure state_name is not None
+                        state_cache[state_name] = state.id
 
-                state_id = state_cache[state_name]
+                state_id = state_cache[state_name] if state_name else None
 
                 # ---------- LGA ----------
-                lga_key = (state_id, lga_name)
-                if lga_key not in lga_cache:
-                    result = await session.execute(
-                        select(LGA).where(
-                            LGA.name == lga_name,
-                            LGA.state_id == state_id,
+                lga_key = (state_id, lga_name) if state_id and lga_name else None
+                if state_id and lga_name:  # Ensure both are not None
+                    lga_key = (state_id, lga_name)
+                    if lga_key not in lga_cache:
+                        result = await session.execute(
+                            select(LGA).where(
+                                LGA.name == lga_name,
+                                LGA.state_id == state_id,
+                            )
                         )
-                    )
-                    lga = result.scalar_one_or_none()
+                        lga = result.scalar_one_or_none()
 
-                    if not lga:
-                        lga = LGA(
+                        if not lga:
+                            lga = LGA(
 
-                            name=lga_name,
-                            state_id=state_id,
-                        )
-                        session.add(lga)
-                        await session.flush()
+                                name=lga_name,
+                                state_id=state_id,
+                            )
+                            session.add(lga)
+                            await session.flush()
 
-                    lga_cache[lga_key] = lga.id
+                        lga_cache[lga_key] = lga.id
 
-                lga_id = lga_cache[lga_key]
+                lga_id = lga_cache[lga_key] if lga_key in lga_cache else None
 
                 # ---------- WARD ----------
-                ward_key = (lga_id, ward_name)
-                if ward_key not in ward_cache:
+                ward_key = (lga_id, ward_name) if lga_id and ward_name else None
+                if ward_key and ward_key not in ward_cache:
                     result = await session.execute(
                         select(Ward).where(
                             Ward.name == ward_name,
@@ -102,7 +105,7 @@ async def import_polling_units(csv_path: str):
 
                     ward_cache[ward_key] = ward.id
 
-                ward_id = ward_cache[ward_key]
+                ward_id = ward_cache[ward_key] if ward_key else None
 
                 # ---------- POLLING UNIT ----------
                 result = await session.execute(

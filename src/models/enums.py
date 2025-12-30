@@ -14,9 +14,13 @@ class ElectionRole(StrEnum):
     FIELD_AGENT = "field_agent"
     OBSERVER = "observer"
     SUPERVISOR = "supervisor"
+    WARD_COORDINATOR = "ward_coordinator"
+    LGA_COORDINATOR = "lga_coordinator"
+    STATE_COORDINATOR = "state_coordinator"
+    NATIONAL_COORDINATOR = "national_coordinator"
 
 
-class ElectionProjectMemberStatus(StrEnum):
+class ProjectMemberStatus(StrEnum):
     INVITED = "invited"
     ACTIVE = "active"
     REMOVED = "removed"
@@ -73,3 +77,16 @@ class ElectionType(StrEnum):
     WARD = "ward"
     COUNCILLORSHIP = "councillorship"
     OTHERS = "others"
+
+
+class ResultStatus(StrEnum):
+    PENDING_REVIEW = "pending_review"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+
+
+class MediaType(StrEnum):
+    RESULT_SHEET = "result_sheet"
+    INCIDENT_PHOTO = "incident_photo"
+    ENVIRONMENT = "environment"
+    OTHER = "other"

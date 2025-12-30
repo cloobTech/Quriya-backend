@@ -1,14 +1,18 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
-from src.models.enums import ElectionProjectMemberStatus, ElectionRole
+from src.models.enums import ProjectMemberStatus, ElectionRole
 
 
-class AddElectionProjectMember(BaseModel):
+class AddProjectMember(BaseModel):
     """schema"""
 
-    user_id: str
-    election_project_id: str
+    user_id: str = Field(..., description="user's id")
     role: ElectionRole
-    status: ElectionProjectMemberStatus = Field(
-        default=ElectionProjectMemberStatus.INVITED,
+    status: ProjectMemberStatus = Field(
+        default=ProjectMemberStatus.INVITED,
         description="current status of the member added to project")
+
+
+class AddMultipleProjectMembers(BaseModel):
+    """schema for adding multiple members to election project"""
+
+    members: list[AddProjectMember]

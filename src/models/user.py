@@ -8,7 +8,8 @@ from src.models.enums import UserRole, UserStatus
 
 if TYPE_CHECKING:
     from src.models.organization import Organization
-    from src.models.election_project import ElectionProject
+    from src.models.project import Project
+    from src.models.result import Result
 
 
 class User(BaseModel, Base):
@@ -32,5 +33,9 @@ class User(BaseModel, Base):
     # Relationships
     organization: Mapped['Organization'] = relationship(
         back_populates="users")
-    election_project: Mapped['ElectionProject'] = relationship(
+    election_project: Mapped['Project'] = relationship(
         back_populates="created_by")
+    submitted_results: Mapped[list['Result']] = relationship(
+        back_populates="submitted_by", foreign_keys='Result.submitted_by_user_id')
+    verified_results: Mapped[list['Result']] = relationship(
+        back_populates="verified_by", foreign_keys='Result.verified_by_user_id')

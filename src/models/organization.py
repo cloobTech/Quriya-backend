@@ -1,19 +1,20 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import JSON, Enum
+from sqlalchemy import Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models.base import BaseModel, Base
 from src.models.enums import OrganizationType, SubscriptionTier, OrganizationStatus
 
 if TYPE_CHECKING:
     from src.models.user import User
-    from src.models.election_project import ElectionProject
+    from src.models.project import Project
 
 
 class Organization(BaseModel, Base):
     """ Organization Model """
     __tablename__ = "organizations"
 
-    name: Mapped[str] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    slug: Mapped[str] = mapped_column(nullable=True, unique=True)
     contact_email: Mapped[str] = mapped_column(nullable=False)
     organization_type: Mapped[OrganizationType] = mapped_column(
         Enum(OrganizationType), nullable=True)
@@ -25,5 +26,5 @@ class Organization(BaseModel, Base):
     # Relationships
     users: Mapped[list['User']] = relationship(
         back_populates="organization", cascade="all, delete-orphan")
-    election_projects: Mapped[list['ElectionProject']] = relationship(
+    projects: Mapped[list['Project']] = relationship(
         back_populates="organization", cascade="all, delete-orphan")

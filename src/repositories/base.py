@@ -28,9 +28,7 @@ class BaseRepository(Generic[ModelType]):
     async def get_by_id(self, id: str) -> Optional[ModelType]:
         """Retrieve a record by its ID."""
         result = await self.session.get(self.model, id)
-        # if not result:
-        #     raise NoResultFound(
-        #         f"{self.model.__name__} with ID {id} not found")
+
         return result
 
     async def get_all(self) -> Sequence[ModelType]:
@@ -52,10 +50,15 @@ class BaseRepository(Generic[ModelType]):
 
         return True
 
-    async def filter_by(self, **kwargs) -> Sequence[ModelType]:
+    async def filter_by(self, **kwargs) -> Sequence[ModelType] | Optional[ModelType]:
         stmt = select(self.model).filter_by(**kwargs)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def filter_one(self, **kwargs) -> Optional[ModelType]:
+        stmt = select(self.model).filter_by(**kwargs)
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
 
     async def update(self, id: str, filters: dict | None = None, data: dict | None = None) -> bool:
         if not data:

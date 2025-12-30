@@ -1,14 +1,10 @@
 from src.unit_of_work.unit_of_work import UnitOfWork
-from typing import TypeVar
 from src.schemas.project_coverage import CoverageSelection
-from src.models.base import Base
 from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.project_lga_coverage import ProjectLgaCoverage
 from src.models.project_ward_coverage import ProjectWardCoverage
 from src.models.project_pu_coverage import ProjectPuCoverage
-from src.services.coverage_validation import CoverageValidationService
-
-ModelType = TypeVar("ModelType", bound=Base)
+from src.validations.coverage import validate_project_exists, validate_coverage_selection, validate_location_existence
 
 
 class ProjectCoverageService:
@@ -20,30 +16,29 @@ class ProjectCoverageService:
     async def select_project_coverage_locations(self, data: CoverageSelection, project_id: str):
         """select state(s), ward(s), lga(s) and PU(s) a project intends to monitors"""
 
-        coverage_validation = CoverageValidationService()
-        coverage_validation.validate_coverage_selection(data)
+        validate_coverage_selection(data)
 
         async with self.uow_factory as uow:
             # await self._validate_project_exists(uow, project_id)
-            await coverage_validation.validate_project_exists(uow.election_project_repo, project_id)
+            await validate_project_exists(uow.election_project_repo, project_id)
             stats = {
 
             }
 
             # State
-            validated_state_ids = await coverage_validation.validate_location_existence(repo=uow.state_repo, ids=data.state_ids)
+            validated_state_ids = await validate_location_existence(repo=uow.state_repo, ids=data.state_ids)
             stats["states"] = await self.bulk_create_coverage(repo=uow.state_coverage_repo, project_id=project_id, ids=validated_state_ids, model_cls=ProjectStateCoverage, field_name="state_id")
 
             # LGA
-            validated_lga_ids = await coverage_validation.validate_location_existence(repo=uow.lga_repo, ids=data.lga_ids)
+            validated_lga_ids = await validate_location_existence(repo=uow.lga_repo, ids=data.lga_ids)
             stats["lgas"] = await self.bulk_create_coverage(repo=uow.lga_coverage_repo, project_id=project_id, ids=validated_lga_ids, model_cls=ProjectLgaCoverage, field_name="lga_id")
 
             # Ward
-            validated_ward_ids = await coverage_validation.validate_location_existence(repo=uow.ward_repo, ids=data.ward_ids)
+            validated_ward_ids = await validate_location_existence(repo=uow.ward_repo, ids=data.ward_ids)
             stats["wards"] = await self.bulk_create_coverage(repo=uow.ward_coverage_repo, project_id=project_id, ids=validated_ward_ids, model_cls=ProjectWardCoverage, field_name="ward_id")
 
             # PUs
-            validated_pu_ids = await coverage_validation.validate_location_existence(repo=uow.polling_unit_repo, ids=data.polling_unit_ids)
+            validated_pu_ids = await validate_location_existence(repo=uow.polling_unit_repo, ids=data.polling_unit_ids)
             stats["pus"] = await self.bulk_create_coverage(repo=uow.pu_coverage_repo, project_id=project_id, ids=validated_pu_ids, model_cls=ProjectPuCoverage, field_name="pu_id")
 
             stats["total"] = sum(stats.values())

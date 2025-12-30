@@ -6,6 +6,7 @@ from src.models.base import BaseModel, Base
 
 if TYPE_CHECKING:
     from src.models.ward import Ward
+    from src.models.result import Result
 
 
 class PollingUnit(BaseModel, Base):
@@ -25,3 +26,5 @@ class PollingUnit(BaseModel, Base):
     location_source: Mapped[str] = mapped_column(nullable=True)
 
     ward: Mapped["Ward"] = relationship(back_populates="polling_units")
+    polling_units_results: Mapped[list["Result"]] = relationship(
+        back_populates="polling_unit")

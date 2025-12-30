@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from src.core.pydantic_config import config
 from src.models.user import User
+from src.core.exceptions import InvalidCredentialsError
 
 
 def hash_password(password: str) -> str:
@@ -12,6 +13,8 @@ def hash_password(password: str) -> str:
 
 def verify_password(user: User, password: str) -> bool:
     """Verify Password"""
+    if not user.password:
+        raise InvalidCredentialsError(message="User has no password set.")
     hashed_password = user.password
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
@@ -68,6 +71,7 @@ def retrive_token(user) -> str:
     """Return Access and Refresh Tokens"""
     data = {"user_id": user.id,
             "user_role": user.role,
+            "organization_id": user.organization_id,
             }
     access_token = create_access_token(data)
     # refresh_token = create_refresh_token(data)

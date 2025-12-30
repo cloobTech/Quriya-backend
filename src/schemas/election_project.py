@@ -3,7 +3,7 @@ from datetime import datetime
 from src.models.enums import ElectionStatus, ElectionType
 
 
-class CreateElectionProject(BaseModel):
+class CreateProject(BaseModel):
     """Create  a new election monitoring project"""
 
     name: str = Field(...,
@@ -12,4 +12,3 @@ class CreateElectionProject(BaseModel):
     status: ElectionStatus = Field(
         default=ElectionStatus.DRAFT, description="check if the execersie has been concluded, ")
     election_type: ElectionType
-

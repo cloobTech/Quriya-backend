@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from src.api.v1.dependencies import get_current_user, get_user_service, require_role
+from fastapi import APIRouter, Depends, Path
+from src.api.v1.dependencies import get_current_user, get_user_service, require_role_in_org, validate_organization_route
 from src.services.user import UserService
 from src.models.user import User
 from src.schemas.user import CreateUser
@@ -8,11 +8,12 @@ from src.schemas.user import UserRole
 
 router = APIRouter()
 
-ADMIN = require_role(UserRole.ORG_ADMIN)
+ADMIN = require_role_in_org(UserRole.ORG_ADMIN)
 
 
 @router.get("/me", response_model=dict)
-async def get_user_profile(current_user: User = Depends(get_current_user), user_service: UserService = Depends(get_user_service)):
+async def get_user_profile(organization_id: str = Path(...), current_user: User = Depends(get_current_user),
+                           user_service: UserService = Depends(get_user_service), validate_organization_route=Depends(validate_organization_route)):
     """Return user's profile"""
     user, org = await user_service.user_profile(current_user.id)
     return {"user": user.to_dict(),
@@ -21,8 +22,8 @@ async def get_user_profile(current_user: User = Depends(get_current_user), user_
 
 
 @router.post("/", response_model=dict)
-async def create_user(user_data: CreateUser, current_user: User = Depends(ADMIN), user_service: UserService = Depends(get_user_service)):
+async def create_user(user_data: CreateUser, organization_id: str = Path(...), current_user: User = Depends(ADMIN),
+                      user_service: UserService = Depends(get_user_service), validate_organization_route=Depends(validate_organization_route)):
     """Create new user"""
-    user_data.admin_organization_id = current_user.organization_id
-    new_user = await user_service.create_user(user_data)
+    new_user = await user_service.create_user(user_data, created_by=current_user)
     return new_user.to_dict()

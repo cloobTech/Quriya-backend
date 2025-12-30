@@ -10,13 +10,11 @@ class CreateUser(BaseModel):
     email: str = Field(..., description="The email address of the user")
     role: UserRole = Field(...,
                            description="The role of the user in the organization")
-    status: UserStatus = Field(...,
-                               description="The status of the user account")
+    status: Optional[UserStatus] = Field(...,
+                                         description="The status of the user account")
     organization_id: Optional[str] = Field(
         None, description="The ID of the organization the user belongs to")
     password: Optional[str] = Field(None, description="user's plain password")
-    admin_organization_id: Optional[str] = Field(
-        None, description="ID of Admin carrying out the operation")
 
     @computed_field
     @property
