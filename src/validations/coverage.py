@@ -48,7 +48,7 @@ async def validate_location_existence(repo, ids: list[str]) -> set[str]:
     """verify that the Id of a location (e.g. Lagos) is in our db """
     validated_ids = await repo.get_existing_ids(set(ids))
     if not validated_ids:
-        raise InvalidCoverageSelectionError(message="no valid existing ids", details={
+        raise InvalidCoverageSelectionError(message="Location Id not found in our database", details={
             "ids": f"{ids}"
         })
     return validated_ids

@@ -7,6 +7,9 @@ from src.models.enums import ElectionStatus
 
 if TYPE_CHECKING:
     from src.models.project import Project
+    from src.models.project_member import ProjectMember
+    from src.models.ward import Ward
+
 
 
 class ProjectWardCoverage(BaseModel, Base):
@@ -20,3 +23,4 @@ class ProjectWardCoverage(BaseModel, Base):
         Enum(ElectionStatus), default=ElectionStatus.DRAFT)
 
     project: Mapped["Project"] = relationship(back_populates="wards")
+    ward: Mapped["Ward"] = relationship(uselist=False)

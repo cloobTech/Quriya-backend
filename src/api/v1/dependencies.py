@@ -88,7 +88,7 @@ def require_role_in_org(*allowed_roles: UserRole):
     return org_checker
 
 
-def validate_organization_route(current_user: User = Depends(get_current_user), organization_id: str = Path(...)):
+def validate_organization_route(current_user: User = Depends(get_current_user), organization_id: str = Path(...)) -> None:
     if current_user.organization_id != organization_id:
         raise PermissionDeniedError(
             message="You do not have permission to perform this operation on this organization",

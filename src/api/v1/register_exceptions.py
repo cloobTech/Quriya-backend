@@ -39,7 +39,7 @@ def register_exception_handlers(app: FastAPI):
     app.add_exception_handler(InvalidCredentialsError,
                               invalid_credentials_handler)
     app.add_exception_handler(PermissionDeniedError, permission_denied_handler)
-    app.add_exception_handler(PermissionDeniedError,
+    app.add_exception_handler(InvalidCoverageSelectionError,
                               invalid_coverage_selection)
 
     # Token-related

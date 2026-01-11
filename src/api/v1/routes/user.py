@@ -22,8 +22,9 @@ async def get_user_profile(organization_id: str = Path(...), current_user: User 
 
 
 @router.post("/", response_model=dict)
-async def create_user(user_data: CreateUser, organization_id: str = Path(...), current_user: User = Depends(ADMIN),
-                      user_service: UserService = Depends(get_user_service), validate_organization_route=Depends(validate_organization_route)):
+async def create_users(user_data: list[CreateUser], organization_id: str = Path(...), current_user: User = Depends(ADMIN),
+                       user_service: UserService = Depends(get_user_service), validate_organization_route=Depends(validate_organization_route)):
     """Create new user"""
-    new_user = await user_service.create_user(user_data, created_by=current_user)
-    return new_user.to_dict()
+    new_users = await user_service.create_users(user_data, created_by=current_user)
+
+    return {"message": f"{len(new_users)} Users created successfully"}

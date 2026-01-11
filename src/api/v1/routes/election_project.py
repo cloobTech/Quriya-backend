@@ -4,11 +4,11 @@ from src.schemas.election_project import CreateProject
 from src.schemas.election_project_member import AddMultipleProjectMembers
 from src.schemas.project_assignment import AssignPollingUnitToProjectMember
 from src.schemas.project_coverage import CoverageSelection
-from src.schemas.user import UserRole
 from src.models.user import User
-from src.services.election_project import ProjectService
+from src.models.enums import ElectionRole, UserRole
+from src.services.project import ProjectService
 from src.services.project_coverage import ProjectCoverageService
-from src.services.election_project_member import ProjectMemberService
+from src.services.project_member import ProjectMemberService
 from src.services.project_assignment import ProjectAssignmentService
 from src.unit_of_work.unit_of_work import UnitOfWork
 
@@ -16,6 +16,24 @@ from src.unit_of_work.unit_of_work import UnitOfWork
 router = APIRouter()
 
 ADMIN = require_role_in_org(UserRole.ORG_ADMIN)
+
+
+@router.get("/", response_model=dict)
+async def get_organization_monitoring_projects(current_user: User = Depends(ADMIN), uow: UnitOfWork = Depends(get_uow)):
+    election_project_service = ProjectService(uow)
+    projects = await election_project_service.get_organization_projects(organization_id=current_user.organization_id)
+    return {
+        "projects": [project.to_dict() for project in projects],
+        "message": "Election monitoring projects"}
+
+
+@router.get("/{project_id}", response_model=dict)
+async def get_organization_monitoring_project(project_id: str, current_user: User = Depends(ADMIN), uow: UnitOfWork = Depends(get_uow)):
+    election_project_service = ProjectService(uow)
+    project = await election_project_service.get_organization_project(project_id=project_id)
+    return {
+        "project": project.to_dict(),
+        "message": "Election monitoring project"}
 
 
 @router.post("/", response_model=dict)
@@ -30,6 +48,7 @@ async def create_election_monitoring_project(data: CreateProject, uow: UnitOfWor
     }
 
 
+# Project Coverage
 @router.post("/{project_id}/coverage", response_model=dict)
 async def select_coverage_locations(project_id: str, data: CoverageSelection, uow: UnitOfWork = Depends(get_uow), current_user: User = Depends(ADMIN)):
     """Select coverage locations for election project"""
@@ -38,6 +57,7 @@ async def select_coverage_locations(project_id: str, data: CoverageSelection, uo
     return response
 
 
+# Project Members
 @router.post("/{project_id}/members", response_model=dict)
 async def add_members_to_project(project_id: str, data: AddMultipleProjectMembers, uow: UnitOfWork = Depends(get_uow), current_user: User = Depends(ADMIN)):
     """Add members to election project"""
@@ -47,6 +67,31 @@ async def add_members_to_project(project_id: str, data: AddMultipleProjectMember
         "message": "Member(s) added to election project",
         "members": [member.to_dict() for member in created_members]
     }
+
+
+@router.get("/{project_id}/members", response_model=dict)
+async def get_project_members(project_id: str, role: ElectionRole | None = None, uow: UnitOfWork = Depends(get_uow),
+                              current_user: User = Depends(ADMIN)):
+    """Get project members"""
+    member_service = ProjectMemberService(uow)
+    members = await member_service.get_project_members(project_id=project_id, role=role)
+    return {
+        "message": "Project members",
+        "members": members
+    }
+
+
+@router.get("/{project_id}/agents", response_model=dict)
+async def get_agents_with_assignments_and_location(project_id: str, uow: UnitOfWork = Depends(get_uow), current_user: User = Depends(ADMIN)):
+    """Get project members"""
+    member_service = ProjectMemberService(uow)
+    members = await member_service.get_agents_with_assignments_and_location(project_id=project_id)
+    return {
+        "message": "Project members",
+        "members": members
+    }
+
+# Project Assignments
 
 
 @router.post("/{project_id}/assignments", response_model=dict)

@@ -1,14 +1,10 @@
 from sqlalchemy.exc import NoResultFound
-from typing import Tuple
 from src.models.organization import Organization
-from src.models.enums import UserRole
-from src.models.user import User
 from src.models.organization import Organization
 from src.schemas.organization import CreateOrganization
-from src.schemas.user import CreateUser
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.events.organization_events import OrganizationCreatedEvent
-from src.core.exceptions import UserAlreadyExistsError, EntityNotFoundError
+from src.core.exceptions import  EntityNotFoundError
 
 
 class OrganizationService:

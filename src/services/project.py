@@ -1,7 +1,9 @@
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.models.project import Project
+# from src.models.user import User
 from src.schemas.election_project import CreateProject
 from src.core.exceptions import EntityNotFoundError
+# from src.models.enums import UserRole
 
 
 class ProjectService:
@@ -23,3 +25,18 @@ class ProjectService:
                                                                               createdby_user_id=createdby_user_id,))
             # we can send an email or notification here
             return election_project
+
+    async def get_organization_projects(self, organization_id: str) -> list[Project]:
+
+        async with self.uow_factory as uow:
+            projects = await uow.election_project_repo.filter_by(organization_id=organization_id)
+            return projects
+
+    async def get_organization_project(self, project_id: str) -> Project:
+
+        async with self.uow_factory as uow:
+            project = await uow.election_project_repo.get_by_id(project_id)
+            if project is None:
+                raise EntityNotFoundError(
+                    message=f"cannot find project with this id - {project_id}", details={"project_id": project_id})
+            return project

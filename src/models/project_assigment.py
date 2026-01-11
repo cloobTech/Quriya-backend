@@ -6,6 +6,7 @@ from src.models.base import BaseModel, Base
 
 if TYPE_CHECKING:
     from src.models.project_member import ProjectMember
+    from src.models.project_pu_coverage import ProjectPuCoverage
 
 
 class ProjectAssignment(BaseModel, Base):
@@ -17,7 +18,7 @@ class ProjectAssignment(BaseModel, Base):
     __table_args__ = (
         UniqueConstraint(
             "project_member_id",
-            "polling_unit_id",
+            "pu_coverage_id",
             name="uq_project_member_pu"
         ),
     )
@@ -26,8 +27,8 @@ class ProjectAssignment(BaseModel, Base):
         ForeignKey("project_members.id"), nullable=False
     )
 
-    polling_unit_id: Mapped[str | None] = mapped_column(
-        ForeignKey("polling_units.id"), nullable=True
+    pu_coverage_id: Mapped[str | None] = mapped_column(
+        ForeignKey("project_pu_coverage.id"), nullable=False
     )
 
     assigned_at: Mapped[datetime] = mapped_column(
@@ -37,4 +38,8 @@ class ProjectAssignment(BaseModel, Base):
     # Relationships
     member: Mapped['ProjectMember'] = relationship(
         back_populates="assignments"
+    )
+
+    pu_coverage: Mapped['ProjectPuCoverage'] = relationship(
+        back_populates="assignments",
     )

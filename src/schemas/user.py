@@ -10,8 +10,9 @@ class CreateUser(BaseModel):
     email: str = Field(..., description="The email address of the user")
     role: UserRole = Field(...,
                            description="The role of the user in the organization")
-    status: Optional[UserStatus] = Field(...,
-                                         description="The status of the user account")
+    # status: Optional[UserStatus] = Field(
+    #     UserStatus.PENDING_ACTIVATION,
+    #     description="The status of the user account")
     organization_id: Optional[str] = Field(
         None, description="The ID of the organization the user belongs to")
     password: Optional[str] = Field(None, description="user's plain password")

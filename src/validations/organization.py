@@ -1,4 +1,5 @@
 from src.core.exceptions import PermissionDeniedError, EntityNotFoundError
+from src.models.user import User
 
 
 async def validate_project_and_org(project_id: str, org_id: str, uow):
@@ -16,3 +17,14 @@ async def validate_project_and_org(project_id: str, org_id: str, uow):
                      "project_id": project_id, "org_id": org_id}
         )
     return project
+
+
+
+# async def validate_permission(current_user, organization_id: str, uow):
+
+#             if current_user.role not in [UserRole.ORG_ADMIN, UserRole.SUPER_ADMIN, UserRole.ORG_OWNER]:
+#                 raise PermissionDeniedError(
+#                     message="You do not have permission to perform this action",
+#                     details={"user_id": current_user.id,
+#                              "organization_id": organization_id}
+#                 )

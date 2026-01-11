@@ -7,6 +7,9 @@ from src.models.enums import ElectionStatus
 
 if TYPE_CHECKING:
     from src.models.project import Project
+    from src.models.project_member import ProjectMember
+    from src.models.local_government_area import LGA
+
 
 
 class ProjectLgaCoverage(BaseModel, Base):
@@ -20,3 +23,7 @@ class ProjectLgaCoverage(BaseModel, Base):
         Enum(ElectionStatus), default=ElectionStatus.DRAFT, nullable=False)
 
     project: Mapped["Project"] = relationship(back_populates="lgas")
+    member: Mapped["ProjectMember"] = relationship(
+        back_populates="lga_coverage")
+    lga: Mapped["LGA"] = relationship(uselist=False)
+

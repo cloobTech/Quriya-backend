@@ -21,7 +21,7 @@ class Project(BaseModel, Base):
     __tablename__ = "projects"
 
     organization_id: Mapped[str] = mapped_column(
-        ForeignKey("organizations.id"), nullable=True)
+        ForeignKey("organizations.id"), nullable=False)
     createdby_user_id: Mapped[str] = mapped_column(
         ForeignKey("users.id"), nullable=False
     )

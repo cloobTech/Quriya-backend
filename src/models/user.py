@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from src.models.organization import Organization
     from src.models.project import Project
     from src.models.result import Result
+    from src.models.project_member import ProjectMember
 
 
 class User(BaseModel, Base):
@@ -39,3 +40,6 @@ class User(BaseModel, Base):
         back_populates="submitted_by", foreign_keys='Result.submitted_by_user_id')
     verified_results: Mapped[list['Result']] = relationship(
         back_populates="verified_by", foreign_keys='Result.verified_by_user_id')
+    member: Mapped['ProjectMember'] = relationship(
+        back_populates="user"
+    )

@@ -65,6 +65,8 @@ def unique_violation_handler(request: Request, exc: Exception):
 
         ).model_dump(),
     )
+
+
 def invalid_coverage_selection(request: Request, exc: Exception):
 
     return JSONResponse(

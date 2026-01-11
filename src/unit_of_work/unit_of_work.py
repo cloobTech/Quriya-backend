@@ -2,6 +2,7 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from src.repositories.user import UserRepository
+from src.repositories.member_ward_coverage import MemberWardCoverageRepository
 from src.repositories.organization import OrganizationRepository
 from src.repositories.project import ProjectRepository
 from src.repositories.project_member import ProjectMemberRepository
@@ -50,6 +51,7 @@ class UnitOfWork:
         self.result_repo = ResultRepository(session)
         self.party_vote_repo = PartyVoteRepository(session)
         self.political_party_repo = PoliticalPartyRepository(session)
+        self.member_ward_coverage_repo = MemberWardCoverageRepository(session)
 
     def collect_event(self, event: DomainEvent) -> None:
         self._pending_events.append(event)
@@ -68,10 +70,11 @@ class UnitOfWork:
                 return
 
             await self.session.commit()
-        except IntegrityError as e:
-            await self.session.rollback()
-            self._pending_events.clear()
-            raise UniqueViolationError("Duplicate record") from e
+        # except IntegrityError as e:
+        #     print(exc_type, exc, tb)
+        #     await self.session.rollback()
+        #     self._pending_events.clear()
+        #     raise UniqueViolationError("Duplicate record") from e
         except Exception:
             await self.session.rollback()
             self._pending_events.clear()

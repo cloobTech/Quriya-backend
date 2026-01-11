@@ -50,10 +50,10 @@ class BaseRepository(Generic[ModelType]):
 
         return True
 
-    async def filter_by(self, **kwargs) -> Sequence[ModelType] | Optional[ModelType]:
+    async def filter_by(self, **kwargs) -> list[ModelType]:
         stmt = select(self.model).filter_by(**kwargs)
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def filter_one(self, **kwargs) -> Optional[ModelType]:
         stmt = select(self.model).filter_by(**kwargs)

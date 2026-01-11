@@ -6,7 +6,6 @@ from src.models.base import BaseModel, Base
 
 if TYPE_CHECKING:
     from src.models.ward import Ward
-    from src.models.result import Result
 
 
 class PollingUnit(BaseModel, Base):
@@ -20,11 +19,11 @@ class PollingUnit(BaseModel, Base):
     ward_id: Mapped[str] = mapped_column(
         ForeignKey("wards.id"), nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)
-    code: Mapped[str] = mapped_column(nullable=True)
+    code: Mapped[str] = mapped_column(nullable=False)
     latitude: Mapped[float] = mapped_column(nullable=True)
     longitude: Mapped[float] = mapped_column(nullable=True)
     location_source: Mapped[str] = mapped_column(nullable=True)
+    formatted_address: Mapped[str] = mapped_column(nullable=True)
+
 
     ward: Mapped["Ward"] = relationship(back_populates="polling_units")
-    polling_units_results: Mapped[list["Result"]] = relationship(
-        back_populates="polling_unit")
