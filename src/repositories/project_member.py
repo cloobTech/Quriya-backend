@@ -1,15 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
 from src.repositories.base import BaseRepository
 from src.models.project_member import ProjectMember
-from src.models.enums import ElectionRole
+from src.models.enums import ElectionRole, ProjectMemberStatus
 from src.models.project_assigment import ProjectAssignment
 from src.models.member_ward_coverage import MemberWardCoverage
 from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.project_lga_coverage import ProjectLgaCoverage
 from src.models.project_ward_coverage import ProjectWardCoverage
 from src.models.project_pu_coverage import ProjectPuCoverage
+from src.schemas.default import PaginationParams
 
 
 class ProjectMemberRepository(BaseRepository[ProjectMember]):
@@ -44,8 +45,10 @@ class ProjectMemberRepository(BaseRepository[ProjectMember]):
     async def list_agents_with_assignments_and_location(
         self,
         project_id: str,
+        pagination: PaginationParams,
         role: ElectionRole = ElectionRole.FIELD_AGENT,
-    ) -> list[ProjectMember]:
+
+    ) -> tuple[list[ProjectMember], int]:
 
         stmt = (
             select(ProjectMember)
@@ -70,8 +73,61 @@ class ProjectMemberRepository(BaseRepository[ProjectMember]):
                 .selectinload(ProjectAssignment.pu_coverage)
                 .selectinload(ProjectPuCoverage.polling_unit),
             )
+            .order_by(ProjectMember.created_at.desc())
 
         )
 
+        # result = await self.session.execute(stmt)
+        # return list(result.scalars().unique().all())
+        # page=1, page_size=1000)
+        result, total = await self.paginate(stmt, limit=pagination.limit, offset=pagination.offset)
+        return result, total
+
+    async def agent_statistics(
+        self,
+        project_id: str,
+
+    ):
+        """
+        Returns stats for agents in a project:
+        - total_agents
+        - breakdown by status
+        - total wards assigned
+        - total polling units assigned
+         """
+
+        pm = ProjectMember
+        pa = ProjectAssignment
+        pu = ProjectPuCoverage
+
+        stmt = (
+            select(
+                # func.count(pm.id).label("total_agents"),
+                func.count(func.distinct(pm.id)).label("total_agents"),
+                func.count(func.distinct(case(
+                    (pm.status == ProjectMemberStatus.ACTIVE, pm.id), else_=None))).label("active_agents"),
+                func.count(func.distinct(case(
+                    (pm.status == ProjectMemberStatus.INVITED, pm.id), else_=None))).label("invited_agents"),
+                func.count(func.distinct(case(
+                    (pm.status == ProjectMemberStatus.SUSPENDED, pm.id), else_=None))).label("suspended_agents"),
+                func.count(func.distinct(case(
+                    (pm.status == ProjectMemberStatus.DEACTIVATED, pm.id), else_=None))).label(
+                    "deactivated_agents"),
+                func.count(func.distinct(case(
+                    (pm.status == ProjectMemberStatus.IDLE, pm.id), else_=None))).label(
+                    "idle_agents"),
+                func.count(func.distinct(pa.pu_coverage_id)
+                           ).label("total_pus_assigned"),
+            )
+            .outerjoin(pa, pm.id == pa.project_member_id)  # join assignments
+            .where(pm.election_project_id == project_id, pm.role == ElectionRole.FIELD_AGENT)
+        )
+
         result = await self.session.execute(stmt)
-        return list(result.scalars().unique().all())
+        stats = result.one()
+
+        total_pus = await self.session.scalar(
+            select(func.count(pu.id)).where(pu.project_id == project_id)
+        )
+
+        return stats, total_pus

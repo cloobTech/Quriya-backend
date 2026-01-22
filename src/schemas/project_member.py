@@ -90,13 +90,6 @@ class ProjectMemberResponse(BaseModel):
         "from_attributes": True
     }
 
-# class PollingUnitResponse(BaseModel):
-#     id: str
-#     name: str
-#     ward: WardResponse
-
-#     model_config = {"from_attributes": True}
-
 
 class AssignmentResponse(BaseModel):
     polling_unit: PollingUnitResponse
@@ -112,11 +105,9 @@ class ProjectAgentResponse(BaseModel):
     role: ElectionRole
     status: ProjectMemberStatus
     user: UserResponse
-    # polling_unit: PollingUnitResponse
-    # assignments: list
-    # state: StateResponse
-    # assignments: [AssignmentResponse.model_validate(assignment) for assignment in member.assignments]
 
     model_config = {
         "from_attributes": True
     }
+
+

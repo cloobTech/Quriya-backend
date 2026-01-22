@@ -20,3 +20,12 @@ class LgaRepository(BaseRepository[LGA]):
         stmt = select(self.model.id).where(self.model.id.in_(ids))
         result = await self.session.execute(stmt)
         return {row[0] for row in result}
+
+    async def get_state_ids_for_lgas(self, ids: set[str]) -> dict[str, str]:
+        """Return mapping { lga_id: state_id } for the provided LGA ids."""
+        if not ids:
+            return {}
+        stmt = select(self.model.id, self.model.state_id).where(
+            self.model.id.in_(ids))
+        result = await self.session.execute(stmt)
+        return {row[0]: row[1] for row in result.all()}

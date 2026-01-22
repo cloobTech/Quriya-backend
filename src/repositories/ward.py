@@ -20,3 +20,12 @@ class WardRepository(BaseRepository[Ward]):
         stmt = select(self.model.id).where(self.model.id.in_(ids))
         result = await self.session.execute(stmt)
         return {row[0] for row in result}
+
+    async def get_lga_ids_for_wards(self, ids: set[str]) -> dict[str, str]:
+        """Return mapping { ward_id : lga_id } for the provided ward ids."""
+        if not ids:
+            return {}
+        stmt = select(self.model.id, self.model.lga_id).where(
+            self.model.id.in_(ids))
+        result = await self.session.execute(stmt)
+        return {row[0]: row[1] for row in result.all()}

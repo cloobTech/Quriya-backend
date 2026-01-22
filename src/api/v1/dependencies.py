@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
-from fastapi import Depends, HTTPException, status, Path
+from fastapi import Depends, HTTPException, status, Path, Query
+from src.schemas.default import PaginationParams
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.unit_of_work.unit_of_work import UnitOfWork
@@ -74,13 +75,15 @@ def require_role_in_org(*allowed_roles: UserRole):
         if current_user.role not in allowed_roles:
             raise PermissionDeniedError(
                 message="You do not have permission to perform this action",
-                details={"user_id": current_user.id, "organization_id": organization_id}
+                details={"user_id": current_user.id,
+                         "organization_id": organization_id}
             )
 
         if current_user.organization_id != organization_id:
             raise PermissionDeniedError(
                 message="You do not have permission to perform this operation on this organization",
-                details={"user_id": current_user.id, "organization_id": organization_id}
+                details={"user_id": current_user.id,
+                         "organization_id": organization_id}
             )
 
         return current_user

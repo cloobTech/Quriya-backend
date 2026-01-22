@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from src.models.project import Project
     from src.models.project_member import ProjectMember
     from src.models.state import State
+    from src.models.project_lga_coverage import ProjectLgaCoverage
 
 
 class ProjectStateCoverage(BaseModel, Base):
@@ -25,3 +26,5 @@ class ProjectStateCoverage(BaseModel, Base):
     member: Mapped[list["ProjectMember"]] = relationship(
         back_populates="state_coverage")
     state: Mapped["State"] = relationship(uselist=False)
+    lgas_coverage: Mapped[list["ProjectLgaCoverage"]] = relationship(
+        back_populates="state_coverage")

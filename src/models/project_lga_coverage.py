@@ -9,7 +9,8 @@ if TYPE_CHECKING:
     from src.models.project import Project
     from src.models.project_member import ProjectMember
     from src.models.local_government_area import LGA
-
+    from src.models.project_state_coverage import ProjectStateCoverage
+    from src.models.project_ward_coverage import ProjectWardCoverage
 
 
 class ProjectLgaCoverage(BaseModel, Base):
@@ -19,6 +20,9 @@ class ProjectLgaCoverage(BaseModel, Base):
         ForeignKey("projects.id"), primary_key=True)
     lga_id: Mapped[str] = mapped_column(ForeignKey(
         "local_government_areas.id"), primary_key=True)
+    state_coverage_id: Mapped[str] = mapped_column(
+        ForeignKey("project_state_coverage.id"), nullable=False
+    )
     status: Mapped[ElectionStatus] = mapped_column(
         Enum(ElectionStatus), default=ElectionStatus.DRAFT, nullable=False)
 
@@ -26,4 +30,7 @@ class ProjectLgaCoverage(BaseModel, Base):
     member: Mapped["ProjectMember"] = relationship(
         back_populates="lga_coverage")
     lga: Mapped["LGA"] = relationship(uselist=False)
-
+    state_coverage: Mapped["ProjectStateCoverage"] = relationship(
+        uselist=False)
+    wards_coverage: Mapped[list["ProjectWardCoverage"]] = relationship(
+        back_populates="lga_coverage")

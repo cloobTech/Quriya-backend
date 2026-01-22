@@ -24,6 +24,7 @@ class CreateUser(BaseModel):
 
 
 class UserResponse(BaseModel):
+    id: str
     full_name: Optional[str] = Field(
         None, description="The full name of the user")
     first_name: str = Field(..., description="The first name of the user")
@@ -39,6 +40,8 @@ class UserResponse(BaseModel):
         ..., description="The timestamp when the user was created")
     updated_at: datetime = Field(
         ..., description="The timestamp when the user was last updated")
+    last_login: Optional[datetime] = Field(
+        None, description="The timestamp when the user last logged in")
 
     class Config:
         from_attributes = True

@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.pydantic_config import config
-from src.api.v1.routes import user, organization, auth, election_project, result, locations
+from src.api.v1.routes import (user, organization, auth, election_project, result,
+                               locations, member, coverage)
 from src.events.bootstrap import bootstrap_events_initializer
 from src.storage import db
 from src.api.v1.register_exceptions import register_exception_handlers
@@ -55,8 +56,12 @@ app.include_router(organization.router,
                    prefix="/api/v1/organizations", tags=["Organizations"])
 app.include_router(election_project.router,
                    prefix="/api/v1/organizations/{organization_id}/projects", tags=["Election Monitoring Projects"], dependencies=[Depends(validate_organization_route)])
+app.include_router(coverage.router,
+                   prefix="/api/v1/organizations/{organization_id}/projects/{project_id}/coverage", tags=["Project Location Coverage"], dependencies=[Depends(validate_organization_route)])
 app.include_router(result.router,
-                   prefix="/api/v1/organizations/{organization_id}/projects/{project_id}/results", tags=["Election Results"])
+                   prefix="/api/v1/organizations/{organization_id}/projects/{project_id}/results", tags=["Election Results"], dependencies=[Depends(validate_organization_route)])
+app.include_router(member.router,
+                   prefix="/api/v1/organizations/{organization_id}/projects/{project_id}", tags=["Project Members"], dependencies=[Depends(validate_organization_route)])
 
 app.include_router(locations.router,
                    prefix="/api/v1/locations", tags=["Static Locations"])

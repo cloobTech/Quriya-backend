@@ -106,3 +106,11 @@ class UserService:
         if not user:
             return
         user.last_login = datetime.now(timezone.utc)
+
+    async def get_org_users(self, organization_id, include_admins: bool = False) -> list[User]:
+        async with self.uow_factory as uwo:
+            if include_admins:
+                users = await uwo.users_repo.filter_by(organization_id=organization_id)
+            else:
+                users = await uwo.users_repo.filter_by(organization_id=organization_id, role=UserRole.STAFF)
+            return users

@@ -24,6 +24,9 @@ class ProjectMemberStatus(StrEnum):
     INVITED = "invited"
     ACTIVE = "active"
     REMOVED = "removed"
+    SUSPENDED = "suspended"
+    DEACTIVATED = "deactivated"
+    IDLE = "idle"
 
 
 class UserStatus(StrEnum):

@@ -1,9 +1,11 @@
+import math
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.models.project_member import ProjectMember
-from src.schemas.election_project_member import AddMultipleProjectMembers, ProjectMemberResponse, ProjectAgentResponse, AssignmentResponse
+from src.schemas.project_member import AddMultipleProjectMembers, ProjectMemberResponse, ProjectAgentResponse, AssignmentResponse
 from src.core.exceptions import EntityNotFoundError
 from src.utils.fetch_or_exists import fetch_or_exists
 from src.models.enums import ElectionRole
+from src.schemas.default import PaginationParams, PaginatedResponse, Meta
 
 
 class ProjectMemberService:
@@ -39,16 +41,18 @@ class ProjectMemberService:
                 for member in members
             ]
 
-    async def get_agents_with_assignments_and_location(self, project_id: str):
+    async def get_agents_with_assignments_and_location(self, project_id: str,
+                                                       pagination: PaginationParams):
         async with self.uow_factory as uow:
-            members = await uow.election_project_member_repo.list_agents_with_assignments_and_location(project_id=project_id)
+            members, total = await uow.election_project_member_repo.list_agents_with_assignments_and_location(project_id=project_id, pagination=pagination)
 
-            return [
+            result = [
                 {
                     "id": str(member.id),
                     "user_id": str(member.user_id),
                     "role": member.role.value,
                     "status": member.status.value,
+                    "updated_at": member.updated_at,
                     "user": {
                         "id": str(member.user.id),
                         "email": member.user.email,
@@ -64,21 +68,43 @@ class ProjectMemberService:
                         "name": member.lga_coverage.lga.name,
 
                     } if member.lga_coverage else None,
-                    "ward": [
+                    "wards": [
                         {"name": ward.ward_coverage.ward.name, "ward_coverage_id": ward.ward_coverage_id} for ward in member.member_ward_coverage
                     ],
                     "polling_units": [
                         {"name": pu.pu_coverage.polling_unit.name, "formatted_address": pu.pu_coverage.polling_unit.formatted_address, "code": pu.pu_coverage.polling_unit.code} for pu in member.assignments
                     ]
-
-
-
                 }
                 for member in members
 
             ]
 
-            # return [
-            #     ProjectAgentResponse.model_validate(member)
-            #     for member in members
-            # ]
+            meta = Meta(
+                page=pagination.page,
+                page_size=pagination.page_size,
+                total=total,
+                total_pages=math.ceil(total / pagination.page_size),
+            )
+
+            return PaginatedResponse(
+                data=result,
+                meta=meta
+
+            )
+
+    async def get_agent_statistics(self, project_id: str):
+        async with self.uow_factory as uow:
+            stats, total_pus = await uow.election_project_member_repo.agent_statistics(
+                project_id=project_id
+            )
+
+            return {
+                "total_agents": stats.total_agents or 0,
+                "active_agents": stats.active_agents or 0,
+                "invited_agents": stats.invited_agents or 0,
+                "suspended_agents": stats.suspended_agents or 0,
+                "deactivated_agents": stats.deactivated_agents or 0,
+                "idle_agents": stats.idle_agents or 0,
+                "total_pus_assigned": stats.total_pus_assigned or 0,
+                "total_pus_in_project": total_pus or 0,
+            }

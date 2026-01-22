@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Path
 from src.api.v1.dependencies import get_current_user, get_user_service, require_role_in_org, validate_organization_route
 from src.services.user import UserService
 from src.models.user import User
-from src.schemas.user import CreateUser
-from src.schemas.user import UserRole
+from src.schemas.user import CreateUser, UserResponse
+from src.models.enums import UserRole
 
 
 router = APIRouter()
@@ -16,9 +16,17 @@ async def get_user_profile(organization_id: str = Path(...), current_user: User 
                            user_service: UserService = Depends(get_user_service), validate_organization_route=Depends(validate_organization_route)):
     """Return user's profile"""
     user, org = await user_service.user_profile(current_user.id)
-    return {"user": user.to_dict(),
+    return {"user": UserResponse.model_validate(user),
             "organization": org.to_dict()
             }
+
+
+@router.get("/", response_model=dict)
+async def get_org_users(include_admins: bool = False, organization_id: str = Path(...), current_user: User = Depends(ADMIN),
+                        user_service: UserService = Depends(get_user_service), validate_organization_route=Depends(validate_organization_route)):
+    """Return all users in an organization"""
+    users = await user_service.get_org_users(organization_id, include_admins)
+    return {"users": [UserResponse.model_validate(user) for user in users]}
 
 
 @router.post("/", response_model=dict)

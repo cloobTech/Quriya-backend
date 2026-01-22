@@ -7,6 +7,7 @@ from src.models.base import BaseModel, Base
 if TYPE_CHECKING:
     from src.models.project_member import ProjectMember
     from src.models.project_ward_coverage import ProjectWardCoverage
+    
 
 
 class MemberWardCoverage(BaseModel, Base):

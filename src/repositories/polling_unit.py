@@ -10,7 +10,6 @@ class PollingRepository(BaseRepository[PollingUnit]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(PollingUnit, session)
 
-
     async def get_existing_ids(self, ids: set[str]) -> set[str]:
         """
         Return the subset of IDs that actually exist in the lgas table.
@@ -21,3 +20,12 @@ class PollingRepository(BaseRepository[PollingUnit]):
         stmt = select(self.model.id).where(self.model.id.in_(ids))
         result = await self.session.execute(stmt)
         return {row[0] for row in result}
+
+    async def get_ward_ids_for_pus(self, ids: set[str]) -> dict[str, str]:
+        """Return mapping { pu_id : ward_id } for the provided ward ids."""
+        if not ids:
+            return {}
+        stmt = select(self.model.id, self.model.ward_id).where(
+            self.model.id.in_(ids))
+        result = await self.session.execute(stmt)
+        return {row[0]: row[1] for row in result.all()}

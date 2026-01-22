@@ -108,3 +108,17 @@ class BaseRepository(Generic[ModelType]):
         count = result.scalar_one()
 
         return count == len(set(ids))
+
+    async def paginate(self,
+                       stmt,
+                       *,
+                       offset: int,
+                       limit: int) -> tuple[list[ModelType], int]:
+        """Fetch records with pagination."""
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = await self.session.scalar(count_stmt) or 0
+        total_result = await self.session.execute(
+            stmt.offset(offset).limit(limit)
+        )
+        items = list(total_result.scalars().unique().all())
+        return items, total
