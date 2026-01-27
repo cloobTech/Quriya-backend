@@ -93,3 +93,34 @@ class MediaType(StrEnum):
     INCIDENT_PHOTO = "incident_photo"
     ENVIRONMENT = "environment"
     OTHER = "other"
+
+
+class IncidentSeverity(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class IncidentStatus(StrEnum):
+    OPEN = "open"
+    UNDER_REVIEW = "under_review"
+    RESOLVED = "resolved"
+
+
+class IncidentType(StrEnum):
+    VIOLENCE = "violence"
+    INTIMIDATION = "intimidation"
+    BALLOT_SNATCHING = "ballot_snatching"
+    VOTE_BUYING = "vote_buying"
+    UNDERAGE_VOTING = "underage_voting"
+    IMPERSONATION = "impersonation"
+    OVER_VOTING = "over_voting"
+    LATE_OPENING = "late_opening"
+    EARLY_CLOSING = "early_closing"
+    MATERIAL_SHORTAGE = "material_shortage"
+    EQUIPMENT_FAILURE = "equipment_failure"
+    RESULT_TAMPERING = "result_tampering"
+    SECURITY_ISSUE = "security_issue"
+    OFFICIAL_MISCONDUCT = "official_misconduct"
+    CROWD_CONTROL_ISSUE = "crowd_control_issue"
+    OTHER = "other"

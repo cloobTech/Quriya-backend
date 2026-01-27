@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from src.models.enums import ProjectMemberStatus, ElectionRole
+# from src.schemas.default import CamelCaseModel
 # from src.schemas.locations import PollingUnitResponse, StateResponse
 
 
@@ -111,3 +112,9 @@ class ProjectAgentResponse(BaseModel):
     }
 
 
+class AgentQueryParams(BaseModel):
+    search: Optional[str] = None
+    status: Optional[ProjectMemberStatus] = None
+    state_id: Optional[str] = None
+    lga_id: Optional[str] = None
+    ward_id: Optional[str] = None

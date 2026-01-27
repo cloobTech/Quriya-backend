@@ -19,6 +19,7 @@ from src.repositories.media import ResultMediaRepository
 from src.repositories.result import ResultRepository
 from src.repositories.party_vote import PartyVoteRepository
 from src.repositories.political_party import PoliticalPartyRepository
+from src.repositories.incident import IncidentRepository
 from src.events.bus import event_bus
 from src.events.base import DomainEvent
 from src.core.exceptions import UniqueViolationError
@@ -52,6 +53,7 @@ class UnitOfWork:
         self.party_vote_repo = PartyVoteRepository(session)
         self.political_party_repo = PoliticalPartyRepository(session)
         self.member_ward_coverage_repo = MemberWardCoverageRepository(session)
+        self.incident_repo = IncidentRepository(session)
 
     def collect_event(self, event: DomainEvent) -> None:
         self._pending_events.append(event)

@@ -1,6 +1,7 @@
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.schemas.result import SubmitResultSchema
 from src.models.enums import ElectionRole, ResultStatus
+from src.models.incident import Incident
 from src.models.result import Result
 from src.models.media import ResultMedia
 from src.models.party_vote import PartyVote
@@ -23,11 +24,12 @@ class ResultService:
     ) -> Result:
         """Submit election result for a polling unit"""
         async with self.uow_factory as uow:
+            # validate the user is an agent (role)
             # validate_pu_exists
-            await validate_pu_exists(
-                uow=uow,
-                pu_id=result_data.pu_id
-            )
+            # await validate_pu_exists(
+            #     uow=uow,
+            #     pu_id=result_data.pu_id
+            # )
             # validate_pu_covered
             await validate_pu_coverage(
                 uow=uow.pu_coverage_repo,
@@ -36,12 +38,12 @@ class ResultService:
             )
 
             # validate that the user is authorized to submit results for the project
-            await validate_authorized_user(
-                uow=uow,
-                user_id=user_id,
-                project_id=project_id,
-                pu_id=result_data.pu_id
-            )
+            # await validate_authorized_user(
+            #     uow=uow,
+            #     user_id=user_id,
+            #     project_id=project_id,
+            #     pu_id=result_data.pu_id
+            # )
 
             # validate_result_not_exists
             await validate_result_not_exists(
@@ -68,6 +70,26 @@ class ResultService:
                 status=ResultStatus.PENDING_REVIEW
             )
 
+            # Add incidents if any
+            for incident in result_data.incidents:
+                incident_entity = Incident(
+                    project_id=result_entity.project_id,
+                    result_id=result_entity.id,
+                    type=incident.type,
+                    description=incident.description,
+                    status=incident.status,
+                    severity=incident.severity
+                )
+                for media in incident.media:
+                    media_entity = ResultMedia(
+                        result_id=result_entity.id,
+                        media_url=media.media_url,
+                        media_type=media.media_type,
+                        incident_id=incident_entity.id
+                    )
+                    incident_entity.media_files.append(media_entity)
+                result_entity.incidents.append(incident_entity)
+
             # Add media files if any
             for media in result_data.media:
                 media_entity = ResultMedia(
@@ -75,6 +97,7 @@ class ResultService:
                     media_url=media.media_url,
                     media_type=media.media_type
                 )
+                
                 result_entity.media_files.append(media_entity)
 
             # Add party votes

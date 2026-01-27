@@ -1,5 +1,7 @@
+import math
 from src.unit_of_work.unit_of_work import UnitOfWork
-from src.schemas.project_coverage import CoverageSelection
+from src.schemas.project_coverage import CoverageSelection, PUQueryParams
+from src.schemas.default import PaginationParams, PaginatedResponse, Meta
 from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.project_lga_coverage import ProjectLgaCoverage
 from src.models.project_ward_coverage import ProjectWardCoverage
@@ -283,3 +285,59 @@ class ProjectCoverageService:
     async def get_pu_coverage_by_ward_id(self, project_id: str, ward_coverage_id: str, assigned_status: bool | None = None) -> list[ProjectPuCoverage]:
         async with self.uow_factory as uow:
             return await uow.pu_coverage_repo.get_pu_coverage(project_id=project_id, ward_coverage_id=ward_coverage_id, assigned_status=assigned_status)
+
+    async def get_pu_coverage_with_result_status_and_agents(
+        self,
+        project_id: str,
+        filters: PUQueryParams,
+        pagination: PaginationParams,
+    ):
+        """Return list of ProjectPuCoverage with result status and agents loaded."""
+        async with self.uow_factory as uow:
+            pu_coverages, total = await uow.pu_coverage_repo.get_pu_coverage_with_result_status_and_agents(
+                project_id=project_id,
+                filters=filters,
+                pagination=pagination
+            )
+
+            result = [
+                {
+                    "id": str(pu_coverage.id),
+                    "name": pu_coverage.polling_unit.name.lower(),
+                    "code": pu_coverage.polling_unit.code,
+                    "location": pu_coverage.polling_unit.formatted_address,
+                    "status": pu_coverage.status,
+                    "agent": pu_coverage.assignment.member.user.full_name if pu_coverage.assignment else None,
+                    "result_status": pu_coverage.polling_units_result.status if pu_coverage.polling_units_result else None,
+                    "incident": bool(pu_coverage.polling_units_result and pu_coverage.polling_units_result.incidents),
+
+                    "last_activity_at": pu_coverage.updated_at,
+
+                    "ward": {
+                        "ward_c_id": pu_coverage.ward_coverage.id,
+                        "name": pu_coverage.ward_coverage.ward.name.lower(),
+                    },
+                    "lga": {
+                        "id": pu_coverage.ward_coverage.lga_coverage_id,
+                        "name": pu_coverage.ward_coverage.lga_coverage.lga.name.lower(),
+                    },
+                    "state": {
+                        "state_c_id": pu_coverage.ward_coverage.lga_coverage.state_coverage_id,
+                        "name": pu_coverage.ward_coverage.lga_coverage.state_coverage.state.name.lower(),
+                    },
+                }
+                for pu_coverage in pu_coverages
+            ]
+
+            meta = Meta(
+                page=pagination.page,
+                page_size=pagination.page_size,
+                total=total,
+                total_pages=math.ceil(total / pagination.page_size),
+            )
+
+            return PaginatedResponse(
+                data=result,
+                meta=meta
+
+            )

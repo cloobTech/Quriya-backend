@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, case
+from sqlalchemy import select, func, case, or_
 from sqlalchemy.orm import selectinload
 from src.repositories.base import BaseRepository
 from src.models.project_member import ProjectMember
@@ -10,7 +10,9 @@ from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.project_lga_coverage import ProjectLgaCoverage
 from src.models.project_ward_coverage import ProjectWardCoverage
 from src.models.project_pu_coverage import ProjectPuCoverage
+from src.models.user import User
 from src.schemas.default import PaginationParams
+from src.schemas.project_member import AgentQueryParams
 
 
 class ProjectMemberRepository(BaseRepository[ProjectMember]):
@@ -46,16 +48,59 @@ class ProjectMemberRepository(BaseRepository[ProjectMember]):
         self,
         project_id: str,
         pagination: PaginationParams,
+        filters: AgentQueryParams,
         role: ElectionRole = ElectionRole.FIELD_AGENT,
 
     ) -> tuple[list[ProjectMember], int]:
 
-        stmt = (
-            select(ProjectMember)
+        base_stmt = (
+            select(ProjectMember.id)
+            .join(ProjectMember.user)
             .where(
                 ProjectMember.election_project_id == project_id,
                 ProjectMember.role == role
             )
+
+            .order_by(ProjectMember.created_at.desc())
+
+        )
+
+        if filters.status:
+            base_stmt = base_stmt.where(ProjectMember.status == filters.status)
+
+        if filters.search:
+            q = f"%{filters.search}%"
+            base_stmt = base_stmt.where(
+                or_(
+                    User.first_name.ilike(q),
+                    User.last_name.ilike(q),
+                    User.email.ilike(q),
+                )
+            )
+
+        if filters.state_id:
+            base_stmt = base_stmt.join(ProjectMember.state_coverage).where(
+                ProjectStateCoverage.id == filters.state_id
+            )
+
+        if filters.lga_id:
+            base_stmt = base_stmt.join(ProjectMember.lga_coverage).where(
+                ProjectLgaCoverage.id == filters.lga_id
+            )
+
+        if filters.ward_id:
+            base_stmt = base_stmt.join(ProjectMember.member_ward_coverage).where(
+                MemberWardCoverage.ward_coverage_id == filters.ward_id
+            )
+
+        member_ids, total = await self.paginate(base_stmt, limit=pagination.limit, offset=pagination.offset)
+        # return result, total
+        if not member_ids:
+            return [], 0
+        stmt = (
+            select(ProjectMember)
+            .where(ProjectMember.id.in_(member_ids))
+            # .where(ProjectMember.id.in_([m.id for m in member_ids]))
             .options(
                 selectinload(ProjectMember.user),
 
@@ -73,15 +118,11 @@ class ProjectMemberRepository(BaseRepository[ProjectMember]):
                 .selectinload(ProjectAssignment.pu_coverage)
                 .selectinload(ProjectPuCoverage.polling_unit),
             )
-            .order_by(ProjectMember.created_at.desc())
-
         )
 
-        # result = await self.session.execute(stmt)
-        # return list(result.scalars().unique().all())
-        # page=1, page_size=1000)
-        result, total = await self.paginate(stmt, limit=pagination.limit, offset=pagination.offset)
-        return result, total
+        members = (await self.session.scalars(stmt)).unique().all()
+
+        return list(members), total
 
     async def agent_statistics(
         self,

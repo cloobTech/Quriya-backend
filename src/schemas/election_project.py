@@ -13,11 +13,3 @@ class CreateProject(BaseModel):
     status: ElectionStatus = Field(
         default=ElectionStatus.DRAFT, description="check if the execersie has been concluded, ")
     election_type: ElectionType
-
-
-class AgentQueryParams(BaseModel):
-    search: Optional[str] = None
-    status: Optional[ProjectMemberStatus] = None
-    state_id: Optional[str] = None
-    lga_id: Optional[str] = None
-    ward_id: Optional[str] = None

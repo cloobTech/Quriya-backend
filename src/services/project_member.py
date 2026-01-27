@@ -1,7 +1,7 @@
 import math
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.models.project_member import ProjectMember
-from src.schemas.project_member import AddMultipleProjectMembers, ProjectMemberResponse, ProjectAgentResponse, AssignmentResponse
+from src.schemas.project_member import AddMultipleProjectMembers, ProjectMemberResponse, AgentQueryParams
 from src.core.exceptions import EntityNotFoundError
 from src.utils.fetch_or_exists import fetch_or_exists
 from src.models.enums import ElectionRole
@@ -42,9 +42,9 @@ class ProjectMemberService:
             ]
 
     async def get_agents_with_assignments_and_location(self, project_id: str,
-                                                       pagination: PaginationParams):
+                                                       pagination: PaginationParams, filters: AgentQueryParams):
         async with self.uow_factory as uow:
-            members, total = await uow.election_project_member_repo.list_agents_with_assignments_and_location(project_id=project_id, pagination=pagination)
+            members, total = await uow.election_project_member_repo.list_agents_with_assignments_and_location(project_id=project_id, pagination=pagination, filters=filters)
 
             result = [
                 {

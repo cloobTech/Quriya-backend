@@ -10,7 +10,7 @@ async def validate_pu_exists(
 ) -> None:
     """Validate that the polling unit exists in the project"""
     pu_exists = await fetch_or_exists(
-        uow.polling_unit_repo,
+        uow.pu_coverage_repo,
         id=pu_id,
         only_exists=True
     )
@@ -65,10 +65,10 @@ async def validate_pu_coverage(
         uow,
         filter_by={
             "project_id": project_id,
-            "pu_id": pu_id
+            "id": pu_id
         },
         only_exists=True
     )
     if not pu_covered:
         raise EntityNotFoundError(message="Polling unit not covered in the election project", details={
-                                  "project_id": project_id, "pu_id": pu_id})
+                                  "project_id": project_id, "id": pu_id})

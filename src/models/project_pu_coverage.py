@@ -28,10 +28,10 @@ class ProjectPuCoverage(BaseModel, Base):
 
     project: Mapped["Project"] = relationship(back_populates="polling_units")
 
-    polling_units_results: Mapped[list["Result"]] = relationship(
+    polling_units_result: Mapped["Result"] = relationship(
         back_populates="polling_unit")
-    assignments: Mapped[list["ProjectAssignment"]] = relationship(
+    assignment: Mapped["ProjectAssignment"] = relationship(
         back_populates="pu_coverage")
     polling_unit: Mapped["PollingUnit"] = relationship(uselist=False)
-    wards_coverage: Mapped[list["ProjectWardCoverage"]] = relationship(
+    ward_coverage: Mapped["ProjectWardCoverage"] = relationship(
         back_populates="pu_coverage")

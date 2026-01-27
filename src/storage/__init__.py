@@ -16,11 +16,12 @@ from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.party_vote import PartyVote
 from src.models.result import Result
 from src.models.media import ResultMedia
+from src.models.incident import Incident
 
 
 __all__ = ['Database', 'User', 'Organization', 'ProjectMember',
            'ProjectAssignment', 'Project', 'PollingUnit', 'Ward', 'State',
            'LGA', "ProjectStateCoverage", "ProjectWardCoverage", "ProjectLgaCoverage",
-           "ProjectPuCoverage", "PoliticalParty", "PartyVote", "Result", "ResultMedia"]
+           "ProjectPuCoverage", "PoliticalParty", "PartyVote", "Result", "ResultMedia", "Incident"]
 
 db = Database(db_uri="sqlite+aiosqlite:///./test.db")

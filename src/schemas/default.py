@@ -1,5 +1,17 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any
+
+
+def to_camel(string: str) -> str:
+    parts = string.split('_')
+    return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+
+
+# class CamelCaseModel(BaseModel):
+#     model_config = ConfigDict(
+#         alias_generator=to_camel,
+#         populate_by_name=True
+#     )
 
 
 class DefaultResponse(BaseModel):
@@ -9,7 +21,7 @@ class DefaultResponse(BaseModel):
 
 class PaginationParams(BaseModel):
     page: int = Field(1, ge=1)
-    page_size: int = Field(20, ge=1, le=100)
+    page_size: int = Field(10, ge=1, le=100)
 
     @property
     def offset(self) -> int:
@@ -28,5 +40,5 @@ class Meta(BaseModel):
 
 
 class PaginatedResponse(BaseModel):
-    data: list[Any]  
+    data: list[Any]
     meta: Meta

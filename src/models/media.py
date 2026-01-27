@@ -7,6 +7,7 @@ from src.models.enums import MediaType
 
 if TYPE_CHECKING:
     from src.models.result import Result
+    from src.models.incident import Incident
 
 
 class ResultMedia(BaseModel, Base):
@@ -15,9 +16,13 @@ class ResultMedia(BaseModel, Base):
 
     result_id: Mapped[str] = mapped_column(
         ForeignKey("results.id"), nullable=False)
+    incident_id: Mapped[str] = mapped_column(
+        ForeignKey("incidents.id"), nullable=True
+    )
     media_url: Mapped[str] = mapped_column(nullable=False)
     media_type: Mapped[MediaType] = mapped_column(
         Enum(MediaType), nullable=False)
 
     # Relationships
     result: Mapped['Result'] = relationship(back_populates="media_files")
+    incident: Mapped['Incident'] = relationship(back_populates="media_files")

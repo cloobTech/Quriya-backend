@@ -32,5 +32,5 @@ class ProjectWardCoverage(BaseModel, Base):
         uselist=False, back_populates="wards_coverage"
     )
     pu_coverage: Mapped["ProjectPuCoverage"] = relationship(
-        uselist=False, back_populates="wards_coverage"
+        uselist=False, back_populates="ward_coverage"
     )

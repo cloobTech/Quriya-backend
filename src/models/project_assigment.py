@@ -41,5 +41,5 @@ class ProjectAssignment(BaseModel, Base):
     )
 
     pu_coverage: Mapped['ProjectPuCoverage'] = relationship(
-        back_populates="assignments",
+        back_populates="assignment",
     )

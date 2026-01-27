@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator
-from src.models.enums import ElectionStatus
+from src.models.enums import ElectionStatus, ResultStatus
 
 
 class CoverageSelection(BaseModel):
@@ -29,7 +29,7 @@ class StateCoverageOut(BaseModel):
             name=obj.state.name,
             status=obj.status
         )
-    
+
     model_config = {
         "from_attributes": True
     }
@@ -87,3 +87,15 @@ class PollingUnitOut(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class PUQueryParams(BaseModel):
+    search: str | None = None
+    status: ElectionStatus | None = None
+    ward_id: str | None = None
+    lga_id: str | None = None
+    state_id: str | None = None
+    result_status: ResultStatus | None = None
+    incident_reported: bool | None = None
+    assigned: bool | None = None
+    unassigned: bool | None = None

@@ -1,6 +1,6 @@
 """include coverage ids in relations
 
-Revision ID: cb72b696b03b
+Revision ID: 4d67eeaff53c
 Revises: 
 Create Date: 2026-01-13 20:19:41.551528
 
@@ -11,7 +11,7 @@ from sqlalchemy.sql import text
 
 
 # revision identifiers, used by Alembic.
-revision = 'cb72b696b03b'
+revision = '4d67eeaff53c'
 down_revision = None
 branch_labels = None
 depends_on = None

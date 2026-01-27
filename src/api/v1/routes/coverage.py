@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from src.api.v1.dependencies import get_uow, require_role_in_org
+from src.schemas.default import PaginatedResponse, PaginationParams
 from src.schemas.project_coverage import (CoverageSelection,
-                                          StateCoverageOut, LGAOut, WardOut, PollingUnitOut)
+                                          StateCoverageOut, LGAOut, WardOut, PollingUnitOut, PUQueryParams)
 from src.services.project_coverage import ProjectCoverageService
 from src.unit_of_work.unit_of_work import UnitOfWork
 from src.models.enums import UserRole
@@ -71,3 +72,22 @@ async def get_pu_coverage(project_id: str, ward_coverage_id: str, assigned_statu
             PollingUnitOut.model_validate(coverage) for coverage in response
         ]
     }
+
+
+@router.get("/polling-units/detailed", response_model=PaginatedResponse)
+async def get_pu_coverage_with_result_status_and_agents(
+    project_id: str,
+    filters: PUQueryParams = Depends(),
+    pagination: PaginationParams = Depends(),
+    uow: UnitOfWork = Depends(get_uow),
+    current_user: User = Depends(ADMIN)
+):
+    """Get PU coverage with result status and agents loaded"""
+    coverage_service = ProjectCoverageService(uow)
+    pu_coverage = await coverage_service.get_pu_coverage_with_result_status_and_agents(
+        project_id=project_id,
+        filters=filters,
+        pagination=pagination
+    )
+
+    return pu_coverage
