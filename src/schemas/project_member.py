@@ -58,6 +58,7 @@ class AddProjectMember(BaseModel):
     status: ProjectMemberStatus = Field(
         default=ProjectMemberStatus.INVITED,
         description="current status of the member added to project")
+    agent_code: str | None = None
 
 
 class AddMultipleProjectMembers(BaseModel):

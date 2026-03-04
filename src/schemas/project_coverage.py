@@ -1,5 +1,9 @@
-from pydantic import BaseModel, field_validator
+from datetime import datetime
+from pydantic import BaseModel, field_validator, Field
 from src.models.enums import ElectionStatus, ResultStatus
+from src.schemas.locations import PUResponse
+from src.schemas.result import ResultResponseSchema
+from src.schemas.incidents import IncidentSchema
 
 
 class CoverageSelection(BaseModel):
@@ -99,3 +103,44 @@ class PUQueryParams(BaseModel):
     incident_reported: bool | None = None
     assigned: bool | None = None
     unassigned: bool | None = None
+
+
+class UserResponse(BaseModel):
+    id: str
+    full_name: str
+    email: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class DetailedPollingUnitOutput(BaseModel):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+    status: ElectionStatus
+    polling_unit: PUResponse
+    # ward: WardOut
+    user: UserResponse | None = None
+    result: ResultResponseSchema | None = None
+    incidents: list[IncidentSchema] = []
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        return cls(
+            created_at=obj.created_at,
+            updated_at=obj.updated_at,
+            id=obj.id,
+            user=obj.assignment.member.user if (
+                obj.assignment and obj.assignment.member)else None,
+            status=obj.status,
+            polling_unit=obj.polling_unit,
+            result=obj.polling_units_result,
+            incidents=obj.incidents
+
+        )
+
+    model_config = {
+        "from_attributes": True
+    }

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from src.models.project_ward_coverage import ProjectWardCoverage
     from src.models.project_pu_coverage import ProjectPuCoverage
     from src.models.result import Result
+    from src.models.project_party_style import ProjectPartyStyle
 
 
 class Project(BaseModel, Base):
@@ -30,8 +31,10 @@ class Project(BaseModel, Base):
     election_date: Mapped[datetime] = mapped_column(DATETIME, nullable=False)
     end_date: Mapped[datetime] = mapped_column(DATETIME, nullable=True)
     status: Mapped[ElectionStatus] = mapped_column(
-        Enum(ElectionStatus), default=ElectionStatus.DRAFT)
+        Enum(ElectionStatus), default=ElectionStatus.SCHEDULED)
     election_type: Mapped[ElectionType] = mapped_column(Enum(ElectionType))
+    agent_seq: Mapped[int] = mapped_column(
+        nullable=False, server_default="0")  # used to generate agent unique id
 
     # Relationships
     organization: Mapped['Organization'] = relationship(
@@ -57,5 +60,11 @@ class Project(BaseModel, Base):
         back_populates="project", cascade="all, delete-orphan"
     )
     polling_units: Mapped[list["ProjectPuCoverage"]] = relationship(
+        back_populates="project", cascade="all, delete-orphan"
+    )
+
+    # Party Style
+
+    project_party_style: Mapped[list['ProjectPartyStyle']] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )

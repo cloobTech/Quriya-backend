@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from src.models.project_assigment import ProjectAssignment
     from src.models.polling_unit import PollingUnit
     from src.models.project_ward_coverage import ProjectWardCoverage
+    from src.models.incident import Incident
 
 
 class ProjectPuCoverage(BaseModel, Base):
@@ -24,10 +25,10 @@ class ProjectPuCoverage(BaseModel, Base):
         ForeignKey("project_ward_coverage.id"), nullable=False
     )
     status: Mapped[ElectionStatus] = mapped_column(
-        Enum(ElectionStatus), default=ElectionStatus.DRAFT, nullable=False)
+        Enum(ElectionStatus), default=ElectionStatus.SCHEDULED, nullable=False)
 
     project: Mapped["Project"] = relationship(back_populates="polling_units")
-
+    incidents: Mapped[list["Incident"]] = relationship(back_populates="polling_unit")
     polling_units_result: Mapped["Result"] = relationship(
         back_populates="polling_unit")
     assignment: Mapped["ProjectAssignment"] = relationship(

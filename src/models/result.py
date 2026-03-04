@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from src.models.media import ResultMedia
     from src.models.party_vote import PartyVote
     from src.models.project_pu_coverage import ProjectPuCoverage
-    from src.models.incident import Incident
 
 
 class Result(BaseModel, Base):
@@ -36,7 +35,6 @@ class Result(BaseModel, Base):
         Enum(ResultStatus), default=ResultStatus.PENDING_REVIEW)
 
     # Relationships
-    incidents: Mapped[list['Incident']] = relationship(back_populates="result")
     project: Mapped['Project'] = relationship(back_populates="results")
     polling_unit: Mapped['ProjectPuCoverage'] = relationship(
         back_populates="polling_units_result")

@@ -63,11 +63,12 @@ class SubscriptionTier(StrEnum):
 
 
 class ElectionStatus(StrEnum):
-    DRAFT = "draft"
+    SCHEDULED = "scheduled"
     ONGOING = "ongoing"
     COMPLETED = "completed"
     SUSPENDED = "suspended"
-    CANCELED = "canceled"
+    CANCELLED = "cancelled"
+    DRAFT = "draft"  #backward compatibility
 
 
 class ElectionType(StrEnum):

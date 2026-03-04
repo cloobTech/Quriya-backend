@@ -7,6 +7,7 @@ from src.models.enums import OrganizationType, SubscriptionTier, OrganizationSta
 if TYPE_CHECKING:
     from src.models.user import User
     from src.models.project import Project
+    from src.models.org_party_style import OrgPartyStyle
 
 
 class Organization(BaseModel, Base):
@@ -28,3 +29,6 @@ class Organization(BaseModel, Base):
         back_populates="organization", cascade="all, delete-orphan")
     projects: Mapped[list['Project']] = relationship(
         back_populates="organization", cascade="all, delete-orphan")
+    org_party_style: Mapped[list['OrgPartyStyle']] = relationship(
+        back_populates="organization", cascade="all, delete-orphan"
+    )

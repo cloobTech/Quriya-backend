@@ -6,8 +6,8 @@ from src.models.enums import IncidentStatus, IncidentSeverity, IncidentType
 
 
 if TYPE_CHECKING:
-    from src.models.result import Result
     from src.models.media import ResultMedia
+    from src.models.project_pu_coverage import ProjectPuCoverage
 
 
 class Incident(BaseModel, Base):
@@ -15,9 +15,8 @@ class Incident(BaseModel, Base):
 
     project_id: Mapped[str] = mapped_column(
         ForeignKey("projects.id"), nullable=False)
-    result_id: Mapped[str] = mapped_column(
-        ForeignKey("results.id"), nullable=False
-    )
+    polling_unit_id: Mapped[str] = mapped_column(
+        ForeignKey("project_pu_coverage.id"), nullable=False)
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[IncidentStatus] = mapped_column(
@@ -29,7 +28,8 @@ class Incident(BaseModel, Base):
         Enum(IncidentType), nullable=False, default=IncidentType.OTHER
     )
 
-    result: Mapped['Result'] = relationship(back_populates="incidents")
     media_files: Mapped[list['ResultMedia']] = relationship(
         back_populates="incident", cascade="all, delete-orphan"
     )
+    polling_unit: Mapped['ProjectPuCoverage'] = relationship(
+        back_populates="incidents")

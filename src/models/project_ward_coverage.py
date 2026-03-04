@@ -24,7 +24,7 @@ class ProjectWardCoverage(BaseModel, Base):
     )
 
     status: Mapped[ElectionStatus] = mapped_column(
-        Enum(ElectionStatus), default=ElectionStatus.DRAFT)
+        Enum(ElectionStatus), default=ElectionStatus.SCHEDULED)
 
     project: Mapped["Project"] = relationship(back_populates="wards")
     ward: Mapped["Ward"] = relationship(uselist=False)

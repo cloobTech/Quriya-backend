@@ -24,7 +24,7 @@ class ProjectLgaCoverage(BaseModel, Base):
         ForeignKey("project_state_coverage.id"), nullable=False
     )
     status: Mapped[ElectionStatus] = mapped_column(
-        Enum(ElectionStatus), default=ElectionStatus.DRAFT, nullable=False)
+        Enum(ElectionStatus), default=ElectionStatus.SCHEDULED, nullable=False)
 
     project: Mapped["Project"] = relationship(back_populates="lgas")
     member: Mapped["ProjectMember"] = relationship(

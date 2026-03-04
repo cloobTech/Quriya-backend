@@ -1,9 +1,7 @@
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.repositories.base import BaseRepository
-from src.models.local_government_area import LGA
-from src.models.ward import Ward
 from src.models.project_pu_coverage import ProjectPuCoverage
 from src.models.project_lga_coverage import ProjectLgaCoverage
 from src.models.project_ward_coverage import ProjectWardCoverage
@@ -11,6 +9,8 @@ from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.polling_unit import PollingUnit
 from src.models.project_assigment import ProjectAssignment
 from src.models.result import Result
+from src.models.incident import Incident
+from src.models.party_vote import PartyVote
 from src.models.project_member import ProjectMember
 from src.schemas.project_coverage import PUQueryParams
 from src.schemas.default import PaginationParams
@@ -124,12 +124,12 @@ class PuCoverageRepository(BaseRepository[ProjectPuCoverage]):
                     ProjectMember.user
                 ),
 
-                selectinload(ProjectPuCoverage.polling_units_result)
-                .selectinload(Result.incidents),
+                selectinload(ProjectPuCoverage.polling_units_result),
+                selectinload(ProjectPuCoverage.incidents),
 
                 selectinload(ProjectPuCoverage.ward_coverage).selectinload(
                     ProjectWardCoverage.ward),
-                    
+
                 # Ward coverage → LGA coverage → LGA
                 selectinload(ProjectPuCoverage.ward_coverage)
                 .selectinload(ProjectWardCoverage.lga_coverage)
@@ -145,3 +145,35 @@ class PuCoverageRepository(BaseRepository[ProjectPuCoverage]):
 
         pu_coverages = (await self.session.scalars(stmt)).unique().all()
         return list(pu_coverages), total
+
+    async def get_single_pollunit_details(self, project_id: str, pu_id: str):
+        stmt = (
+            select(ProjectPuCoverage)
+            .where(
+                ProjectPuCoverage.project_id == project_id,
+                ProjectPuCoverage.id == pu_id
+            )
+            .options(
+                joinedload(ProjectPuCoverage.assignment).joinedload(
+                    ProjectAssignment.member).joinedload(
+                    ProjectMember.user
+                ),
+                joinedload(ProjectPuCoverage.polling_unit),
+
+                joinedload(ProjectPuCoverage.ward_coverage).joinedload(
+                    ProjectWardCoverage.ward),
+
+
+                joinedload(ProjectPuCoverage.incidents).selectinload(
+                    Incident.media_files
+                ),
+                joinedload(ProjectPuCoverage.polling_units_result)
+                .selectinload(Result.party_votes).selectinload(
+                    PartyVote.party),
+                joinedload(ProjectPuCoverage.polling_units_result)
+                .selectinload(Result.media_files),
+            )
+        )
+
+        result = await self.session.execute(stmt)
+        return result.scalars().unique().one()

@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from src.models.project_assigment import ProjectAssignment
     from src.models.project_state_coverage import ProjectStateCoverage
     from src.models.project_lga_coverage import ProjectLgaCoverage
-    from src.models.project_ward_coverage import ProjectWardCoverage
     from src.models.member_ward_coverage import MemberWardCoverage
 
 
@@ -40,6 +39,7 @@ class ProjectMember(BaseModel, Base):
         Enum(ElectionRole), default=ElectionRole.FIELD_AGENT)
     status: Mapped[ProjectMemberStatus] = mapped_column(Enum(ProjectMemberStatus),
                                                         default=ProjectMemberStatus.INVITED)
+    agent_code: Mapped[str] = mapped_column(nullable=True)
 
     project: Mapped['Project'] = relationship(
         back_populates="members"
@@ -54,7 +54,6 @@ class ProjectMember(BaseModel, Base):
         back_populates="member"
     )
 
-
     state_coverage: Mapped["ProjectStateCoverage"] = relationship(
         back_populates="member"
     )
@@ -63,6 +62,6 @@ class ProjectMember(BaseModel, Base):
         back_populates="member"
     )
 
-    member_ward_coverage: Mapped[list["MemberWardCoverage"] ]= relationship(
+    member_ward_coverage: Mapped[list["MemberWardCoverage"]] = relationship(
         back_populates="member"
     )

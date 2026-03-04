@@ -20,7 +20,7 @@ class ProjectStateCoverage(BaseModel, Base):
     state_id: Mapped[str] = mapped_column(
         ForeignKey("states.id"), primary_key=True)
     status: Mapped[ElectionStatus] = mapped_column(
-        Enum(ElectionStatus), default=ElectionStatus.DRAFT, nullable=False)
+        Enum(ElectionStatus), default=ElectionStatus.SCHEDULED, nullable=False)
 
     project: Mapped["Project"] = relationship(back_populates="states")
     member: Mapped[list["ProjectMember"]] = relationship(

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class StateResponse(BaseModel):
@@ -38,6 +38,16 @@ class PollingUnitResponse(BaseModel):
     longitude: float | None = None
     location_source: str | None = None
     ward_id: str
+    formatted_address: str | None = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class PUResponse(PollingUnitResponse):
+    id: str = Field(exclude=True)
+    ward_id: str = Field(exclude=True)
 
     model_config = {
         "from_attributes": True

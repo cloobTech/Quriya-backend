@@ -80,7 +80,7 @@ class ResultService:
                     status=incident.status,
                     severity=incident.severity
                 )
-                for media in incident.media:
+                for media in incident.media_files:
                     media_entity = ResultMedia(
                         result_id=result_entity.id,
                         media_url=media.media_url,
@@ -97,7 +97,7 @@ class ResultService:
                     media_url=media.media_url,
                     media_type=media.media_type
                 )
-                
+
                 result_entity.media_files.append(media_entity)
 
             # Add party votes
@@ -105,7 +105,7 @@ class ResultService:
                 party_vote_entity = PartyVote(
                     result_id=result_entity.id,
                     party_id=party_vote.party_id,
-                    votes=party_vote.valid_votes
+                    votes=party_vote.votes
                 )
                 result_entity.party_votes.append(party_vote_entity)
 

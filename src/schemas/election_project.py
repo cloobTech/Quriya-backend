@@ -11,5 +11,5 @@ class CreateProject(BaseModel):
                       description="The name of the project e.g. Kano Gubernutorial Election")
     election_date: datetime = Field(..., description="election date")
     status: ElectionStatus = Field(
-        default=ElectionStatus.DRAFT, description="check if the execersie has been concluded, ")
+        default=ElectionStatus.SCHEDULED, description="check if the execersie has been concluded, ")
     election_type: ElectionType

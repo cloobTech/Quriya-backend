@@ -1,6 +1,6 @@
 import math
 from src.unit_of_work.unit_of_work import UnitOfWork
-from src.schemas.project_coverage import CoverageSelection, PUQueryParams
+from src.schemas.project_coverage import CoverageSelection, PUQueryParams, DetailedPollingUnitOutput
 from src.schemas.default import PaginationParams, PaginatedResponse, Meta
 from src.models.project_state_coverage import ProjectStateCoverage
 from src.models.project_lga_coverage import ProjectLgaCoverage
@@ -309,7 +309,7 @@ class ProjectCoverageService:
                     "status": pu_coverage.status,
                     "agent": pu_coverage.assignment.member.user.full_name if pu_coverage.assignment else None,
                     "result_status": pu_coverage.polling_units_result.status if pu_coverage.polling_units_result else None,
-                    "incident": bool(pu_coverage.polling_units_result and pu_coverage.polling_units_result.incidents),
+                    "incident": bool(pu_coverage.incidents and pu_coverage.incidents),
 
                     "last_activity_at": pu_coverage.updated_at,
 
@@ -341,3 +341,8 @@ class ProjectCoverageService:
                 meta=meta
 
             )
+
+    async def get_single_pollunit_details(self, project_id: str, pu_id):
+        async with self.uow_factory as uow:
+            response = await uow.pu_coverage_repo.get_single_pollunit_details(project_id=project_id, pu_id=pu_id)
+            return DetailedPollingUnitOutput.model_validate(response)

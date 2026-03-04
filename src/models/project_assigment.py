@@ -27,7 +27,7 @@ class ProjectAssignment(BaseModel, Base):
         ForeignKey("project_members.id"), nullable=False
     )
 
-    pu_coverage_id: Mapped[str | None] = mapped_column(
+    pu_coverage_id: Mapped[str] = mapped_column(
         ForeignKey("project_pu_coverage.id"), nullable=False
     )
 

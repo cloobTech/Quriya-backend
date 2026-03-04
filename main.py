@@ -36,7 +36,8 @@ register_exception_handlers(app)
 
 
 origins = [
-    f"https://example.com" if config.DEV_ENV == 'production' else "*",
+    # f"https://example.com" if config.DEV_ENV == 'production' else "*",
+    "*"
 
 ]
 

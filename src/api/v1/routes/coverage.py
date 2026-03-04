@@ -91,3 +91,20 @@ async def get_pu_coverage_with_result_status_and_agents(
     )
 
     return pu_coverage
+
+
+@router.get("/polling-units/{pu_id}")
+async def get_single_pu_coverage_with_result_status_and_agent_by_id(
+    project_id: str,
+    pu_id: str,
+    uow: UnitOfWork = Depends(get_uow),
+    current_user: User = Depends(ADMIN)
+):
+    """Get PU coverage with result status and agents loaded"""
+    coverage_service = ProjectCoverageService(uow)
+    pu_coverage = await coverage_service.get_single_pollunit_details(
+        project_id=project_id,
+        pu_id=pu_id
+    )
+
+    return pu_coverage

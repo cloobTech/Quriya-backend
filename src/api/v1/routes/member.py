@@ -43,10 +43,6 @@ async def get_project_members(project_id: str, role: ElectionRole | None = None,
 async def get_agents_with_assignments_and_location(project_id: str, uow: UnitOfWork = Depends(get_uow),
                                                    current_user: User = Depends(ADMIN), pagination: PaginationParams = Depends(), filters: AgentQueryParams = Depends()):
     """Get project members"""
-    print("Filters:", filters)
-    print("Filters:", filters.lga_id)
-    print("Pagination:", pagination)
-    print(pagination.page_size)
     member_service = ProjectMemberService(uow)
     members = await member_service.get_agents_with_assignments_and_location(project_id=project_id, pagination=pagination, filters=filters)
     return members

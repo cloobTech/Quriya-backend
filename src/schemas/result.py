@@ -1,28 +1,16 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
-from src.models.enums import MediaType, IncidentSeverity, IncidentStatus, IncidentType
-
-
-class MediaSchema(BaseModel):
-    media_url: str = Field(..., description="URL of the media file")
-    media_type: MediaType = Field(
-        ..., description="Type of the media file, incident photo or result sheet")
+from src.schemas.media import MediaSchema
 
 
 class VotesSchema(BaseModel):
     party_id: str = Field(..., description="ID of the political party")
-    valid_votes: int = Field(...,
-                             description="Number of valid votes obtained by the party")
+    votes: int = Field(...,
+                       description="Number of valid votes obtained by the party")
 
-
-class IncidentSchema(BaseModel):
-    description: str = Field(..., description="Description of the incident")
-    severity: IncidentSeverity = Field(
-        default=IncidentSeverity.LOW, description="Severity of the incident")
-    type: IncidentType = Field(..., description="Type of the incident")
-    status: IncidentStatus = Field(
-        default=IncidentStatus.OPEN, description="Status of the incident")
-    media: list[MediaSchema] = Field(
-        default_factory=list, description="List of media files associated with the incident")
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class SubmitResultSchema(BaseModel):
@@ -43,5 +31,25 @@ class SubmitResultSchema(BaseModel):
         0, description="Total number of cancelled votes")
     media: list[MediaSchema] = Field(
         default_factory=list, description="List of media files associated with the result")
-    incidents: list[IncidentSchema] = Field(
-        default_factory=list, description="List of incidents associated with the result")
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class ResultResponseSchema(BaseModel):
+    id: str
+    created_at: datetime
+    updated_at: datetime
+
+    party_votes: list[VotesSchema] = []
+    media_files: list[MediaSchema] = []
+
+    total_votes_cast: int
+    accredited_voters: int
+    total_valid_votes: int
+    total_invalid_votes: int
+    total_cancelled_votes: int
+    remarks: str | None
+
+    model_config = {"from_attributes": True}

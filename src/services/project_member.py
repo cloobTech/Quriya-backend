@@ -4,7 +4,9 @@ from src.models.project_member import ProjectMember
 from src.schemas.project_member import AddMultipleProjectMembers, ProjectMemberResponse, AgentQueryParams
 from src.core.exceptions import EntityNotFoundError
 from src.utils.fetch_or_exists import fetch_or_exists
+from src.utils.agent_code import generate_agent_code
 from src.models.enums import ElectionRole
+from src.models.project import Project
 from src.schemas.default import PaginationParams, PaginatedResponse, Meta
 
 
@@ -16,16 +18,21 @@ class ProjectMemberService:
 
     async def add_members_to_election_project(self, data: AddMultipleProjectMembers, project_id: str) -> list[ProjectMember]:
         async with self.uow_factory as uow:
-            if not await fetch_or_exists(uow.election_project_repo, id=project_id, only_exists=True):
+            project = await fetch_or_exists(uow.election_project_repo, id=project_id)
+            if not project:
                 raise EntityNotFoundError(
                     message="Election project not found",
                     details={"project_id": project_id}
                 )
-            members = [
-                ProjectMember(
-                    **member.model_dump(), election_project_id=project_id)
-                for member in data.members
-            ]
+
+            members = []
+            for member in data.members:
+                # Generate a unique agent code for project members who are agents (agent code)
+                if member.role == ElectionRole.FIELD_AGENT and isinstance(project, Project):
+                    code = generate_agent_code(project)
+                    member.agent_code = code
+                members.append(ProjectMember(
+                    **member.model_dump(), election_project_id=project_id))
 
             if not members:
                 raise EntityNotFoundError(message="No members to add")
