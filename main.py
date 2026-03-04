@@ -35,16 +35,17 @@ app = FastAPI(
 register_exception_handlers(app)
 
 
-origins = [
-    # f"https://example.com" if config.DEV_ENV == 'production' else "*",
-    "https://quriya.netlify.app",
+# origins = [
+#     # f"https://example.com" if config.DEV_ENV == 'production' else "*",
+#     "https://quriya.netlify.app",
 
-]
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    # allow_credentials=True,
+    allow_credentials=False,
     # allow_methods=["GET", "POST", "PUT", "DELETE"],
     # allow_headers=["Authorization", "Content-Type"],
     allow_methods=["*"],
