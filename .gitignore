@@ -11,7 +11,7 @@
 __pycache__/
 *.pyc
 
-test.db
+# test.db
 try_out.py
-*.db
+# *.db
 scripts/*
